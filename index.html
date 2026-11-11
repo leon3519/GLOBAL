@@ -1,296 +1,695 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Global Interview</title>
-<style>
-:root{--blue:#2563eb;--navy:#101b35;--muted:#64748b;--line:#e2e8f0;--bg:#f4f7fb}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#172033;font:15px/1.5 system-ui,Segoe UI,sans-serif}
-header{background:linear-gradient(115deg,#101b35,#1e40af);color:white;padding:22px max(18px,calc((100% - 1050px)/2))}
-.brand{font-size:22px;font-weight:850}.brand span{color:#93c5fd}.tag{font-size:12px;color:#dbeafe}
-main{max-width:1050px;margin:30px auto;padding:0 16px}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px;box-shadow:0 8px 25px #0f172a08}
-h1{font-size:29px;margin:0 0 8px}h2{margin:0 0 12px}p{color:var(--muted);margin:5px 0 16px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:750;margin-bottom:6px}
-input,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit}input[type=file]{padding:9px}
-button{border:0;border-radius:10px;padding:11px 16px;background:var(--blue);color:white;font-weight:750;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#e8eefc;color:#1e40af}.danger{background:#fee2e2;color:#991b1b}
-.tabs{display:flex;gap:8px;margin-bottom:18px}.tab{background:#e8eefc;color:#1e40af}.tab.active{background:#1d4ed8;color:#fff}
-.hidden{display:none!important}.status{background:#eff6ff;color:#1e40af;border-radius:10px;padding:12px;white-space:pre-wrap;margin:14px 0}.error{background:#fef2f2;color:#991b1b}.success{background:#f0fdf4;color:#166534}
-.question{display:flex;gap:8px;margin:9px 0}.question input{flex:1}.logo{width:90px;height:90px;object-fit:contain;border:1px solid var(--line);border-radius:12px;margin:10px 0}
-.link{background:#f8fafc;border:1px dashed #94a3b8;border-radius:10px;padding:12px;overflow-wrap:anywhere}
-.video{width:100%;max-height:390px;background:#0b1220;border-radius:14px;margin:12px 0}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.progress{height:8px;background:#e2e8f0;border-radius:20px;overflow:hidden}.progress div{height:100%;background:var(--blue);width:0}
-small{color:var(--muted)}footer{text-align:center;color:#94a3b8;padding:25px;font-size:12px}
-@media(max-width:650px){.grid{grid-template-columns:1fr}.panel{padding:17px}h1{font-size:25px}}
-</style></head>
-<body>
-<header><div class="brand">GLOBAL <span>INTERVIEW</span></div><div class="tag">Remote recruitment video interviews</div></header>
-<main>
-<div class="tabs" id="tabs"><button class="tab active" data-view="employer">Create interview</button><button class="tab" data-view="candidate">Candidate interview</button></div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalHire - Secure Remote Video Interview Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .pulse-recording {
+            animation: pulse-red 1.5s infinite;
+        }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
 
-<section class="panel" id="employerView">
-<h1>Create an interview link</h1><p>Complete the employer details, upload the company logo and prepare the questions.</p>
-<form id="createForm"><div class="grid">
-<div><label>Company name *</label><input id="company" required maxlength="120"></div>
-<div><label>Company address *</label><input id="address" required maxlength="240"></div>
-<div><label>Interviewer name *</label><input id="interviewer" required maxlength="120"></div>
-<div><label>Candidate's name *</label><input id="candidate" required maxlength="120"></div>
-<div><label>Position *</label><input id="position" required maxlength="120"></div>
-<div><label>Company logo *</label><input id="logo" type="file" accept="image/png,image/jpeg,image/webp" required><small>PNG/JPG/WEBP, maximum 2 MB</small><img id="preview" class="logo hidden" alt="Company logo preview"></div>
-<div class="full"><label>Interview questions (spoken aloud)</label><div id="questions"></div><button type="button" class="secondary" id="addQuestion">+ Add question</button></div>
-</div><div class="actions"><button id="createBtn">Generate interview link</button></div></form>
-<div id="createStatus" class="status hidden"></div><div id="generated" class="hidden"><h2>Your interview link</h2><div class="link" id="generatedLink"></div><div class="actions"><button id="copyLink" type="button">Copy link</button><button id="openLink" type="button" class="secondary">Open candidate view</button></div><small>Keep this link private and send it only to the intended candidate. It can be used once.</small></div>
-</section>
+    <!-- Notification Toast Modal -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full transition-transform duration-300 bg-slate-800 border border-slate-700 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3">
+        <div id="toast-icon" class="text-xl"></div>
+        <div>
+            <h4 id="toast-title" class="font-semibold text-sm"></h4>
+            <p id="toast-message" class="text-xs text-slate-400"></p>
+        </div>
+    </div>
 
-<section class="panel hidden" id="candidateView">
-<div id="intro"><div id="logoWrap"></div><h1 id="candidateTitle">Candidate interview</h1><div id="details" class="status">Loading interview details…</div><p>Questions will be read aloud. Record a video response to each question. Your recordings will be sent to the recruiting team's Telegram chat.</p><label class="hint"><input type="checkbox" id="consent" style="width:auto"> I consent to video/audio recording and sharing my interview with the recruiting team for hiring assessment.</label><div class="actions"><button id="start" disabled>Start interview</button></div></div>
-<div id="stage" class="hidden"><div class="progress"><div id="bar"></div></div><p id="counter"></p><h2 id="questionText"></h2><button class="secondary" id="repeat" type="button">Play question again</button><video id="live" class="video" autoplay muted playsinline></video><video id="review" class="video hidden" controls playsinline></video><div id="recordStatus" class="status">Preparing camera…</div><div class="actions"><button id="record">Start recording</button><button id="stop" class="danger hidden">Stop recording</button><button id="retry" class="secondary hidden">Record again</button><button id="next" class="hidden">Use answer & continue</button></div></div>
-<div id="finished" class="hidden"><h2>Interview submitted</h2><div id="finishStatus" class="status">Sending your recordings…</div></div>
-</section>
-</main><footer>Global Interview · Secure video interview submission</footer>
+    <!-- Header Navigation -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700/60 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-globe text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-lg font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">GlobalHire</span>
+                    <span class="text-xs block text-indigo-400 font-medium">Cross-Border Recruitment Suite</span>
+                </div>
+            </div>
+            <div id="header-status" class="text-xs bg-slate-700/50 px-3 py-1.5 rounded-full text-slate-300 border border-slate-600/50">
+                <i class="fa-solid fa-shield-halved text-emerald-400 mr-1.5"></i> Secure Session
+            </div>
+        </div>
+    </header>
 
-<script>
-/* The Telegram bot token is stored ONLY in Netlify environment variables. */
-const API_SUBMIT = "/.netlify/functions/telegram-submit";
-const API_SAVE   = "/.netlify/functions/interview-save";
-const API_GET    = "/.netlify/functions/interview-get";
-const $ = id => document.getElementById(id);
-let interview = null, stream = null, recorder = null, chunks = [], answers = [], index = 0, blob = null;
-const defaults = ["Please introduce yourself and describe your relevant experience.","Why are you interested in this position?","Describe a challenge you faced at work and how you handled it.","What strengths would you bring to this role?","Is there anything else you would like us to know?"];
+    <!-- Main Container -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-function status(el, msg, type = "") {
-  el.textContent = msg;
-  el.className = "status " + type;
-  el.classList.remove("hidden");
-}
-function view(name) {
-  $("employerView").classList.toggle("hidden", name !== "employer");
-  $("candidateView").classList.toggle("hidden", name !== "candidate");
-  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.view === name));
-}
-document.querySelectorAll(".tab").forEach(b => b.onclick = () => view(b.dataset.view));
+        <!-- VIEW 1: RECRUITER SETUP DASHBOARD -->
+        <div id="view-recruiter" class="space-y-8">
+            <div class="bg-gradient-to-r from-indigo-900/40 via-slate-800 to-slate-800 border border-indigo-500/30 rounded-2xl p-6 sm:p-8 shadow-xl">
+                <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Recruiter Setup & Link Generator</h1>
+                <p class="text-slate-400 mt-2 text-sm max-w-2xl">
+                    Configure interview parameters for your international candidate. Once generated, share the unique secure link with the candidate. All video recordings and logs will be sent directly to your Telegram bot.
+                </p>
+            </div>
 
-function addQuestion(v = "") {
-  const row = document.createElement("div");
-  row.className = "question";
-  const input = document.createElement("input");
-  input.value = v; input.required = true; input.maxLength = 500; input.placeholder = "Interview question";
-  const remove = document.createElement("button");
-  remove.type = "button"; remove.className = "danger"; remove.textContent = "Remove";
-  remove.onclick = () => row.remove();
-  row.append(input, remove);
-  $("questions").append(row);
-}
-defaults.forEach(addQuestion);
-$("addQuestion").onclick = () => addQuestion();
+            <form id="setup-form" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Company Name -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Company Name</label>
+                        <input type="text" id="company-name" required placeholder="e.g. Apex Global Tech" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
 
-$("logo").onchange = () => {
-  const f = $("logo").files[0];
-  if (!f) return;
-  if (f.size > 2 * 1024 * 1024) { alert("Logo must be 2 MB or smaller"); $("logo").value = ""; return; }
-  $("preview").src = URL.createObjectURL(f);
-  $("preview").classList.remove("hidden");
-};
+                    <!-- Company Address -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Company Address / Location</label>
+                        <input type="text" id="company-address" required placeholder="e.g. 450 Silicon Way, London, UK" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
 
-function b64(file) {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result.split(",")[1]);
-    r.onerror = reject;
-    r.readAsDataURL(file);
-  });
-}
+                    <!-- Interviewee/Representative Name -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Recruiter / Representative Name</label>
+                        <input type="text" id="rep-name" required placeholder="e.g. Sarah Jenkins" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
 
-$("createForm").onsubmit = async e => {
-  e.preventDefault();
-  const file = $("logo").files[0];
-  const questions = [...$("questions").querySelectorAll("input")].map(x => x.value.trim()).filter(Boolean);
-  if (!file || !questions.length) return status($("createStatus"), "Upload a logo and add at least one question.", "error");
-  if (file.size > 2 * 1024 * 1024) return status($("createStatus"), "Logo must be 2 MB or smaller.", "error");
+                    <!-- Candidate's Name -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Candidate's Full Name</label>
+                        <input type="text" id="candidate-name" required placeholder="e.g. Alejandro Morales" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
 
-  $("createBtn").disabled = true;
-  status($("createStatus"), "Saving interview…");
-  try {
-    const record = {
-      id: crypto.randomUUID(),
-      company: $("company").value.trim(),
-      address: $("address").value.trim(),
-      interviewer: $("interviewer").value.trim(),
-      candidate: $("candidate").value.trim(),
-      position: $("position").value.trim(),
-      logo: { name: file.name, type: file.type, data: await b64(file) },
-      questions,
-      createdAt: new Date().toISOString(),
-    };
+                    <!-- Job Position -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Job Position</label>
+                        <input type="text" id="job-position" required placeholder="e.g. Senior Full Stack Engineer" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
 
-    // Persist setup server-side (Netlify Blobs) so the link stays short.
-    const saveRes = await fetch(API_SAVE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(record),
-    });
-    const saved = await saveRes.json();
-    if (!saveRes.ok || !saved.success) throw new Error(saved.error || "Could not save interview.");
+                    <!-- Company Logo Upload -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Company Logo Photo</label>
+                        <input type="file" id="company-logo" accept="image/*" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition cursor-pointer">
+                    </div>
 
-    const url = new URL(location.origin + location.pathname);
-    url.searchParams.set("interview", record.id);
+                    <!-- Telegram Bot Token -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Telegram Bot Token</label>
+                        <input type="text" id="telegram-token" required placeholder="e.g. 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
 
-    $("generatedLink").textContent = url.toString();
-    $("generated").classList.remove("hidden");
-    interview = record;
-    status($("createStatus"), "Interview link generated. Send it to the candidate.", "success");
-  } catch (err) {
-    status($("createStatus"), "Could not generate link: " + err.message, "error");
-  } finally {
-    $("createBtn").disabled = false;
-  }
-};
+                    <!-- Telegram Chat ID -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Telegram Chat ID</label>
+                        <input type="text" id="telegram-chatid" required placeholder="e.g. -100123456789 or @channelname" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                </div>
 
-$("copyLink").onclick = async () => {
-  try { await navigator.clipboard.writeText($("generatedLink").textContent); $("copyLink").textContent = "Copied!"; }
-  catch { alert("Please copy the displayed link manually"); }
-};
-$("openLink").onclick = () => window.open($("generatedLink").textContent, "_blank");
+                <div class="pt-4 flex flex-col sm:flex-row gap-4 items-center justify-end border-t border-slate-700">
+                    <button type="button" id="btn-test-telegram" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-medium text-sm transition flex items-center justify-center space-x-2">
+                        <i class="fa-brands fa-telegram"></i>
+                        <span>Test Telegram Bot</span>
+                    </button>
+                    <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-link"></i>
+                        <span>Generate Interview Link</span>
+                    </button>
+                </div>
+            </form>
 
-async function initCandidate() {
-  const id = new URLSearchParams(location.search).get("interview");
-  if (!id) return;
-  // Hide employer controls when the page was opened from a candidate link.
-  $("tabs").classList.add("hidden");
-  view("candidate");
-  status($("details"), "Loading interview details…");
+            <!-- Generated Link Output Box (Hidden by default) -->
+            <div id="link-output-card" class="hidden bg-slate-800 border border-emerald-500/40 rounded-2xl p-6 sm:p-8 shadow-xl space-y-4">
+                <div class="flex items-center space-x-3 text-emerald-400">
+                    <i class="fa-solid fa-circle-check text-2xl"></i>
+                    <h3 class="text-lg font-bold text-white">Interview Link Generated Successfully!</h3>
+                </div>
+                <p class="text-sm text-slate-300">Share this secure link with the candidate. When opened, it will load their personalized interview session.</p>
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="generated-url" readonly class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-300 text-sm select-all">
+                    <button id="btn-copy-link" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-xl text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Copy Link</span>
+                    </button>
+                </div>
+                <div class="flex justify-end pt-2">
+                    <button id="btn-preview-interview" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center space-x-1.5 transition">
+                        <span>Preview Candidate Interface</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
 
-  try {
-    const res = await fetch(API_GET + "?id=" + encodeURIComponent(id));
-    const data = await res.json();
-    if (!res.ok || !data.id) throw new Error(data.error || "Interview not found.");
-    interview = data;
-  } catch (e) {
-    status($("details"), "This interview link is invalid or has already been used. Ask the recruiter for a new link.", "error");
-    return;
-  }
+        <!-- VIEW 2: CANDIDATE INTERVIEW INTERFACE -->
+        <div id="view-candidate" class="hidden space-y-6">
+            <!-- Company & Candidate Header Banner -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center space-x-4">
+                    <div id="candidate-logo-container" class="w-16 h-16 rounded-xl bg-slate-700 overflow-hidden flex items-center justify-center border border-slate-600 shrink-0">
+                        <i class="fa-solid fa-building text-slate-400 text-2xl"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h2 id="display-company-name" class="text-xl font-bold text-white">Company Name</h2>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/30 font-medium">Verified Client</span>
+                        </div>
+                        <p id="display-company-address" class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i> Address</p>
+                    </div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-700/80 rounded-xl p-4 text-left w-full md:w-auto min-w-[260px] space-y-1">
+                    <div class="text-xs text-slate-400">Candidate: <strong id="display-candidate-name" class="text-white font-medium">Name</strong></div>
+                    <div class="text-xs text-slate-400">Position: <strong id="display-job-position" class="text-indigo-400 font-medium">Position</strong></div>
+                    <div class="text-xs text-slate-400">Interviewer: <strong id="display-rep-name" class="text-white font-medium">Rep</strong></div>
+                </div>
+            </div>
 
-  $("candidateTitle").textContent = interview.company + " — " + interview.position;
-  $("details").textContent = `Company: ${interview.company}\nAddress: ${interview.address}\nInterviewer: ${interview.interviewer}\nCandidate: ${interview.candidate}\nPosition: ${interview.position}`;
+            <!-- Interview Stage Box -->
+            <div id="interview-stage-container" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
+                <!-- Progress Bar Top -->
+                <div class="bg-slate-900 px-6 py-3 border-b border-slate-700 flex items-center justify-between">
+                    <span id="question-counter" class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Question 1 of 4</span>
+                    <div class="w-32 bg-slate-800 rounded-full h-2 overflow-hidden">
+                        <div id="progress-bar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 25%;"></div>
+                    </div>
+                </div>
 
-  if (interview.logo?.data) {
-    const img = document.createElement("img");
-    img.className = "logo"; img.alt = "Company logo";
-    img.src = `data:${interview.logo.type};base64,${interview.logo.data}`;
-    $("logoWrap").append(img);
-  }
-  $("consent").onchange = () => { $("start").disabled = !$("consent").checked; };
-}
+                <div class="p-6 sm:p-8 space-y-6">
+                    <!-- Question Prompt & Audio TTS control -->
+                    <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-5 flex items-start justify-between gap-4">
+                        <div>
+                            <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">Interview Question</span>
+                            <h3 id="question-text" class="text-lg sm:text-xl font-semibold text-white leading-snug">Loading question...</h3>
+                        </div>
+                        <button id="btn-repeat-audio" title="Repeat Audio" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 hover:text-indigo-300 w-11 h-11 rounded-xl flex items-center justify-center border border-slate-700 shrink-0 transition shadow">
+                            <i class="fa-solid fa-volume-high text-lg"></i>
+                        </button>
+                    </div>
 
-function speak(q) {
-  if (!("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(q);
-  u.lang = "en-US"; u.rate = .92;
-  speechSynthesis.speak(u);
-}
+                    <!-- Video Recording Workspace -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Live Camera Preview (Spans 2 cols) -->
+                        <div class="lg:col-span-2 bg-slate-900 rounded-xl overflow-hidden border border-slate-700 relative aspect-video flex items-center justify-center">
+                            <video id="camera-preview" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                            
+                            <!-- Recording Indicator Overlay -->
+                            <div id="recording-badge" class="hidden absolute top-4 left-4 bg-red-500/90 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 backdrop-blur shadow-lg">
+                                <span class="w-2.5 h-2.5 rounded-full bg-white pulse-recording"></span>
+                                <span id="recording-timer">00:00</span>
+                            </div>
 
-async function camera() {
-  if (!navigator.mediaDevices?.getUserMedia) throw Error("Camera requires HTTPS and a modern browser.");
-  stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
-  $("live").srcObject = stream;
-}
+                            <!-- Initial Camera Permission Prompt / Placeholder -->
+                            <div id="camera-placeholder" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+                                <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-indigo-400 mb-3 border border-slate-700">
+                                    <i class="fa-solid fa-video text-2xl"></i>
+                                </div>
+                                <h4 class="font-semibold text-white">Camera & Microphone Access</h4>
+                                <p class="text-xs text-slate-400 max-w-sm mt-1">Please allow camera and microphone permissions when prompted by your browser to begin recording your response.</p>
+                                <button id="btn-init-camera" class="mt-4 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow transition">
+                                    Enable Camera
+                                </button>
+                            </div>
+                        </div>
 
-$("start").onclick = async () => {
-  try {
-    await camera();
-    $("intro").classList.add("hidden");
-    $("stage").classList.remove("hidden");
-    index = 0; answers = [];
-    render();
-  } catch (e) {
-    status($("details"), "Camera/microphone access failed: " + e.message + ". Allow permissions and open this link over HTTPS.", "error");
-  }
-};
+                        <!-- Recording Controls & Status Sidebar -->
+                        <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between space-y-4">
+                            <div>
+                                <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Response Controls</h4>
+                                <p class="text-xs text-slate-400 mb-4">Record your video answer clearly. You can review your recording before proceeding to the next question.</p>
+                                
+                                <div id="recording-status-text" class="text-xs font-medium text-slate-300 bg-slate-800/80 p-3 rounded-xl border border-slate-700 flex items-center space-x-2">
+                                    <i class="fa-solid fa-circle-info text-indigo-400"></i>
+                                    <span>Ready to record response.</span>
+                                </div>
+                            </div>
 
-function render() {
-  const q = interview.questions[index];
-  $("questionText").textContent = q;
-  $("counter").textContent = `Question ${index + 1} of ${interview.questions.length}`;
-  $("bar").style.width = (index / interview.questions.length * 100) + "%";
-  $("live").classList.remove("hidden");
-  $("review").classList.add("hidden");
-  $("record").classList.remove("hidden");
-  $("stop").classList.add("hidden");
-  $("retry").classList.add("hidden");
-  $("next").classList.add("hidden");
-  $("record").disabled = false;
-  blob = null;
-  status($("recordStatus"), "Listen to the question, then start your video answer.");
-  speak(q);
-}
+                            <div class="space-y-3">
+                                <button id="btn-start-record" disabled class="w-full py-3 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-sm shadow-lg shadow-red-600/20 transition flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-circle text-xs"></i>
+                                    <span>Start Recording</span>
+                                </button>
 
-$("repeat").onclick = () => speak(interview.questions[index]);
+                                <button id="btn-stop-record" disabled class="hidden w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm border border-slate-600 transition flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-square text-xs text-red-500"></i>
+                                    <span>Stop Recording</span>
+                                </button>
 
-$("record").onclick = () => {
-  chunks = [];
-  const mime = ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"].find(MediaRecorder.isTypeSupported);
-  try { recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); }
-  catch (e) { return status($("recordStatus"), "Video recording is not supported in this browser.", "error"); }
-  recorder.ondataavailable = e => { if (e.data?.size) chunks.push(e.data); };
-  recorder.onstop = () => {
-    blob = new Blob(chunks, { type: recorder.mimeType || "video/webm" });
-    $("review").src = URL.createObjectURL(blob);
-    $("review").classList.remove("hidden");
-    $("live").classList.add("hidden");
-    $("retry").classList.remove("hidden");
-    $("next").classList.remove("hidden");
-    status($("recordStatus"), "Review your recording, then continue.", "success");
-  };
-  recorder.start(1000);
-  $("record").classList.add("hidden");
-  $("stop").classList.remove("hidden");
-  status($("recordStatus"), "Recording…", "success");
-};
+                                <button id="btn-next-question" disabled class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-sm shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
+                                    <span>Next Question</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-$("stop").onclick = () => {
-  if (recorder && recorder.state !== "inactive") recorder.stop();
-  $("stop").classList.add("hidden");
-};
-$("retry").onclick = render;
+        <!-- VIEW 3: UPLOADING & COMPLETION -->
+        <div id="view-success" class="hidden space-y-6 text-center py-12 max-w-xl mx-auto">
+            <div class="w-20 h-20 bg-emerald-500/20 border border-emerald-500/40 rounded-3xl mx-auto flex items-center justify-center text-emerald-400 text-3xl shadow-xl shadow-emerald-500/10">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Interview Completed Successfully!</h2>
+                <p id="success-subtitle" class="text-sm text-slate-400">Your responses have been successfully recorded and transmitted to the recruiter's Telegram bot.</p>
+            </div>
 
-$("next").onclick = async () => {
-  if (!blob) return;
-  answers[index] = blob;
-  index++;
-  if (index < interview.questions.length) return render();
-  await submit();
-};
+            <!-- Upload Progress Card -->
+            <div id="upload-progress-card" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-left space-y-4 shadow-xl">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
+                    <span id="upload-status-label">Transmitting data to Telegram...</span>
+                    <span id="upload-percentage">0%</span>
+                </div>
+                <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
+                    <div id="upload-progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="upload-log" class="text-xs text-slate-400 space-y-1 font-mono bg-slate-900/60 p-3 rounded-xl border border-slate-700 max-h-32 overflow-y-auto">
+                    <div>[00:00] Initializing secure payload transmission...</div>
+                </div>
+            </div>
 
-async function submit() {
-  $("stage").classList.add("hidden");
-  $("finished").classList.remove("hidden");
-  status($("finishStatus"), "Sending interview details and video answers to Telegram. Please keep this page open…");
-  try {
-    const meta = {
-      interviewId: interview.id,
-      company: interview.company,
-      address: interview.address,
-      interviewer: interview.interviewer,
-      candidate: interview.candidate,
-      position: interview.position,
-      submittedAt: new Date().toISOString(),
-      questions: interview.questions,
-    };
-    const form = new FormData();
-    form.append("metadata", JSON.stringify(meta));
-    for (let i = 0; i < answers.length; i++) form.append("videos", answers[i], `answer-${i + 1}.webm`);
+            <div class="pt-4">
+                <button onclick="window.location.href = window.location.pathname;" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm border border-slate-700 transition">
+                    Start New Interview Session
+                </button>
+            </div>
+        </div>
 
-    const res = await fetch(API_SUBMIT, { method: "POST", body: form });
-    const data = await res.json();
-    if (!res.ok || !data.success) throw Error(data.error || "Telegram submission failed");
+    </main>
 
-    status($("finishStatus"), "Your interview has been submitted successfully. The recruiting team has been notified.", "success");
-  } catch (e) {
-    status($("finishStatus"), "Submission failed: " + e.message + ". Please contact the recruiter and ask for a new submission link if needed.", "error");
-  } finally {
-    if (stream) stream.getTracks().forEach(t => t.stop());
-  }
-}
+    <!-- Footer -->
+    <footer class="bg-slate-800/40 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        GlobalHire Remote Recruitment Protocol &bull; Secure Encrypted WebRTC Session
+    </footer>
 
-initCandidate();
-</script>
-</body></html>
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Interview Questions Set
+        const questions = [
+            "Tell us about yourself, your professional background, and why you are seeking a career opportunity abroad.",
+            "Why do you specifically want to work with our company, and how do you plan to adapt to our corporate culture and time zones?",
+            "How do you handle cross-cultural communication challenges and collaborate effectively in a distributed remote team?",
+            "Describe a complex professional challenge or project you successfully managed in your past role and what key lessons you learned."
+        ];
+
+        // Application State
+        let state = {
+            config: null,
+            currentQuestionIndex: 0,
+            mediaStream: null,
+            mediaRecorder: null,
+            recordedChunks: [],
+            recordedVideos: [], // Array of recorded Blobs per question
+            recordingTimerInterval: null,
+            recordingSeconds: 0
+        };
+
+        // DOM Elements
+        const toast = document.getElementById('toast');
+        const toastTitle = document.getElementById('toast-title');
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = document.getElementById('toast-icon');
+
+        function showToast(title, message, type = 'success') {
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toastIcon.className = type === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-triangle-exclamation text-red-400';
+            toast.classList.remove('translate-x-full');
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 4000);
+        }
+
+        // Handle Logo Image Upload to Base64
+        let logoBase64 = '';
+        document.getElementById('company-logo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    logoBase64 = reader.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Test Telegram Bot
+        document.getElementById('btn-test-telegram').addEventListener('click', async () => {
+            const token = document.getElementById('telegram-token').value.trim();
+            const chatId = document.getElementById('telegram-chatid').value.trim();
+
+            if (!token || !chatId) {
+                showToast('Validation Error', 'Please enter both Telegram Bot Token and Chat ID to test.', 'error');
+                return;
+            }
+
+            try {
+                showToast('Testing...', 'Sending test message to Telegram...', 'success');
+                const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: '🟢 GlobalHire Bot Test: Connection successful!'
+                    })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast('Success', 'Telegram bot connected successfully!', 'success');
+                } else {
+                    showToast('Telegram Error', data.description || 'Failed to connect.', 'error');
+                }
+            } catch (err) {
+                showToast('Network Error', 'Could not reach Telegram API. Check your connection or CORS settings.', 'error');
+            }
+        });
+
+        // Setup Form Submission -> Generate Link
+        document.getElementById('setup-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const config = {
+                companyName: document.getElementById('company-name').value.trim(),
+                companyAddress: document.getElementById('company-address').value.trim(),
+                repName: document.getElementById('rep-name').value.trim(),
+                candidateName: document.getElementById('candidate-name').value.trim(),
+                jobPosition: document.getElementById('job-position').value.trim(),
+                logo: logoBase64,
+                telegramToken: document.getElementById('telegram-token').value.trim(),
+                telegramChatId: document.getElementById('telegram-chatid').value.trim()
+            };
+
+            const jsonString = JSON.stringify(config);
+            const encodedConfig = btoa(encodeURIComponent(jsonString));
+            const generatedUrl = window.location.origin + window.location.pathname + '#config=' + encodedConfig;
+
+            document.getElementById('generated-url').value = generatedUrl;
+            document.getElementById('link-output-card').classList.remove('hidden');
+            document.getElementById('link-output-card').scrollIntoView({ behavior: 'smooth' });
+            showToast('Link Generated', 'Unique interview session link is ready.', 'success');
+        });
+
+        // Copy Link Button
+        document.getElementById('btn-copy-link').addEventListener('click', () => {
+            const urlInput = document.getElementById('generated-url');
+            urlInput.select();
+            document.execCommand('copy');
+            showToast('Copied', 'Interview link copied to clipboard.', 'success');
+        });
+
+        // Preview Interview Button
+        document.getElementById('btn-preview-interview').addEventListener('click', () => {
+            const url = document.getElementById('generated-url').value;
+            const hashPart = url.split('#')[1];
+            if (hashPart) {
+                window.location.hash = hashPart;
+                loadCandidateViewFromHash();
+            }
+        });
+
+        // Check URL Hash on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash && window.location.hash.includes('config=')) {
+                loadCandidateViewFromHash();
+            }
+        });
+
+        function loadCandidateViewFromHash() {
+            try {
+                const hash = window.location.hash;
+                const encodedConfig = hash.split('config=')[1];
+                if (!encodedConfig) return;
+
+                const jsonString = decodeURIComponent(atob(encodedConfig));
+                state.config = JSON.parse(jsonString);
+
+                // Switch Views
+                document.getElementById('view-recruiter').classList.add('hidden');
+                document.getElementById('view-candidate').classList.remove('hidden');
+
+                // Populate Candidate UI
+                document.getElementById('display-company-name').textContent = state.config.companyName;
+                document.getElementById('display-company-address').innerHTML = `<i class="fa-solid fa-location-dot mr-1"></i> ${state.config.companyAddress}`;
+                document.getElementById('display-candidate-name').textContent = state.config.candidateName;
+                document.getElementById('display-job-position').textContent = state.config.jobPosition;
+                document.getElementById('display-rep-name').textContent = state.config.repName;
+
+                if (state.config.logo) {
+                    const logoContainer = document.getElementById('candidate-logo-container');
+                    logoContainer.innerHTML = `<img src="${state.config.logo}" alt="Logo" class="w-full h-full object-cover">`;
+                }
+
+                // Initialize Question
+                loadQuestion(0);
+            } catch (err) {
+                console.error(err);
+                showToast('Error', 'Invalid or corrupted interview configuration link.', 'error');
+            }
+        }
+
+        // Camera Initialization
+        document.getElementById('btn-init-camera').addEventListener('click', async () => {
+            try {
+                state.mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const videoEl = document.getElementById('camera-preview');
+                videoEl.srcObject = state.mediaStream;
+                document.getElementById('camera-placeholder').classList.add('hidden');
+                document.getElementById('btn-start-record').removeAttribute('disabled');
+                
+                showToast('Camera Ready', 'Microphone and Camera successfully initialized.', 'success');
+                
+                // Speak first question automatically
+                speakCurrentQuestion();
+            } catch (err) {
+                console.error(err);
+                showToast('Permission Denied', 'Please allow camera and mic access in your browser settings to proceed.', 'error');
+            }
+        });
+
+        // Text-to-Speech Question Reading
+        function speakCurrentQuestion() {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel(); // Stop any ongoing speech
+            const questionText = questions[state.currentQuestionIndex];
+            const utterance = new SpeechSynthesisUtterance(questionText);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        document.getElementById('btn-repeat-audio').addEventListener('click', () => {
+            speakCurrentQuestion();
+        });
+
+        function loadQuestion(index) {
+            state.currentQuestionIndex = index;
+            document.getElementById('question-text').textContent = questions[index];
+            document.getElementById('question-counter').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('progress-bar').style.width = `${((index + 1) / questions.length) * 100}%`;
+            
+            // Reset recorder state for this question
+            document.getElementById('btn-start-record').classList.remove('hidden');
+            document.getElementById('btn-stop-record').classList.add('hidden');
+            document.getElementById('btn-next-question').setAttribute('disabled', 'true');
+            document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-info text-indigo-400"></i> <span>Ready to record response for Question ' + (index + 1) + '.</span>';
+
+            if (state.mediaStream) {
+                speakCurrentQuestion();
+            }
+        }
+
+        // Start Recording Handler
+        document.getElementById('btn-start-record').addEventListener('click', () => {
+            if (!state.mediaStream) return;
+
+            state.recordedChunks = [];
+            let options = { mimeType: 'video/webm;codecs=vp9,opus' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: '' };
+                }
+            }
+
+            try {
+                state.mediaRecorder = new MediaRecorder(state.mediaStream, options);
+            } catch (e) {
+                state.mediaRecorder = new MediaRecorder(state.mediaStream);
+            }
+
+            state.mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) {
+                    state.recordedChunks.push(e.data);
+                }
+            };
+
+            state.mediaRecorder.onstop = () => {
+                const blob = new Blob(state.recordedChunks, { type: 'video/webm' });
+                state.recordedVideos[state.currentQuestionIndex] = blob;
+                
+                document.getElementById('recording-badge').classList.add('hidden');
+                document.getElementById('btn-next-question').removeAttribute('disabled');
+                document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Response recorded successfully. You can proceed or re-record.</span>';
+            };
+
+            state.mediaRecorder.start(1000);
+            
+            // UI adjustments
+            document.getElementById('btn-start-record').classList.add('hidden');
+            document.getElementById('btn-stop-record').classList.remove('hidden');
+            document.getElementById('recording-badge').classList.remove('hidden');
+            
+            // Timer
+            state.recordingSeconds = 0;
+            updateTimerDisplay();
+            state.recordingTimerInterval = setInterval(() => {
+                state.recordingSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+
+            document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle text-red-500 animate-pulse"></i> <span>Recording in progress...</span>';
+        });
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(state.recordingSeconds / 60).toString().padStart(2, '0');
+            const secs = (state.recordingSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('recording-timer').textContent = `${mins}:${secs}`;
+        }
+
+        // Stop Recording Handler
+        document.getElementById('btn-stop-record').addEventListener('click', () => {
+            if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+                state.mediaRecorder.stop();
+                clearInterval(state.recordingTimerInterval);
+                document.getElementById('btn-stop-record').classList.add('hidden');
+                document.getElementById('btn-start-record').classList.remove('hidden');
+                document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-rotate-right text-xs"></i><span>Re-record Response</span>';
+            }
+        });
+
+        // Next Question Handler
+        document.getElementById('btn-next-question').addEventListener('click', () => {
+            if (state.currentQuestionIndex < questions.length - 1) {
+                // Reset start button text
+                document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-circle text-xs"></i><span>Start Recording</span>';
+                loadQuestion(state.currentQuestionIndex + 1);
+            } else {
+                // All questions completed -> Stop camera stream and start uploading to Telegram
+                if (state.mediaStream) {
+                    state.mediaStream.getTracks().forEach(track => track.stop());
+                }
+                startTelegramUploadSequence();
+            }
+        });
+
+        // Telegram Upload Sequence
+        async function startTelegramUploadSequence() {
+            document.getElementById('view-candidate').classList.add('hidden');
+            document.getElementById('view-success').classList.remove('hidden');
+
+            const token = state.config.telegramToken;
+            const chatId = state.config.telegramChatId;
+            const logEl = document.getElementById('upload-log');
+            const progressBar = document.getElementById('upload-progress-bar');
+            const progressPercentage = document.getElementById('upload-percentage');
+            const statusLabel = document.getElementById('upload-status-label');
+
+            function addLog(msg) {
+                const div = document.createElement('div');
+                div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                logEl.appendChild(div);
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+
+            function setProgress(percent, label) {
+                progressBar.style.width = `${percent}%`;
+                progressPercentage.textContent = `${percent}%`;
+                if (label) statusLabel.textContent = label;
+            }
+
+            setProgress(10, 'Sending candidate metadata summary...');
+            addLog('Preparing candidate summary message...');
+
+            const summaryText = `🎯 *New Remote Interview Completed*\n\n` +
+                `🏢 *Company:* ${state.config.companyName}\n` +
+                `📍 *Address:* ${state.config.companyAddress}\n` +
+                `👤 *Recruiter:* ${state.config.repName}\n` +
+                `🎓 *Candidate:* ${state.config.candidateName}\n` +
+                `💼 *Position:* ${state.config.jobPosition}\n` +
+                `📅 *Date:* ${new Date().toUTCString()}`;
+
+            try {
+                // 1. Send Text Summary
+                const textRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: summaryText,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                const textData = await textRes.json();
+                if (!textData.ok) {
+                    throw new Error(textData.description || 'Failed to send Telegram text summary.');
+                }
+                addLog('Candidate metadata successfully sent to Telegram.');
+                setProgress(30, 'Uploading video responses...');
+
+                // 2. Sequentially Upload Videos
+                const totalVideos = state.recordedVideos.length;
+                for (let i = 0; i < totalVideos; i++) {
+                    const videoBlob = state.recordedVideos[i];
+                    addLog(`Uploading video response for Question ${i + 1} (${Math.round(videoBlob.size / 1024)} KB)...`);
+
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('video', videoBlob, `Candidate_${state.config.candidateName}_Q${i + 1}.webm`);
+                    formData.append('caption', `🎬 *${state.config.candidateName}* - Question ${i + 1}:\n"${questions[i]}"`);
+
+                    const videoRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const videoData = await videoRes.json();
+                    if (!videoData.ok) {
+                        addLog(`⚠️ Warning on Q${i + 1} video upload: ${videoData.description}`);
+                    } else {
+                        addLog(`✅ Question ${i + 1} video successfully uploaded.`);
+                    }
+
+                    const progressVal = 30 + Math.round(((i + 1) / totalVideos) * 70);
+                    setProgress(progressVal, `Uploaded video ${i + 1} of ${totalVideos}...`);
+                }
+
+                setProgress(100, 'All data and video recordings successfully sent!');
+                addLog('Interview transmission completed successfully.');
+                showToast('Success', 'All candidate responses delivered to Telegram.', 'success');
+
+            } catch (err) {
+                console.error(err);
+                addLog(`❌ Error: ${err.message}`);
+                showToast('Upload Error', err.message || 'Error transmitting to Telegram.', 'error');
+                statusLabel.textContent = 'Transmission encountered an error. Check logs.';
+            }
+        }
+    </script>
+</body>
+</html>
