@@ -219,7 +219,7 @@
                             <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">Interview Question</span>
                             <h3 id="question-text" class="text-lg sm:text-xl font-semibold text-white leading-snug">Loading question...</h3>
                         </div>
-                        <button id="btn-repeat-audio" title="Repeat Audio" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 hover:text-indigo-300 w-11 h-11 rounded-xl flex items-center justify-center border border-slate-700 shrink-0 transition shadow">
+                        <button id="btn-repeat-audio" title="Listen to Question" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 hover:text-indigo-300 w-11 h-11 rounded-xl flex items-center justify-center border border-slate-700 shrink-0 transition shadow">
                             <i class="fa-solid fa-volume-high text-lg"></i>
                         </button>
                     </div>
@@ -248,7 +248,7 @@
                         <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between space-y-4">
                             <div>
                                 <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Response Controls</h4>
-                                <p class="text-xs text-slate-400 mb-4">Record your video answer clearly. You can review your recording before proceeding to the next question.</p>
+                                <p class="text-xs text-slate-400 mb-4">Record your video answer clearly. Stop recording when finished to proceed.</p>
                                 
                                 <div id="recording-status-text" class="text-xs font-medium text-slate-300 bg-slate-800/80 p-3 rounded-xl border border-slate-700 flex items-center space-x-2">
                                     <i class="fa-solid fa-circle-info text-indigo-400"></i>
@@ -262,7 +262,7 @@
                                     <span>Start Recording</span>
                                 </button>
 
-                                <button id="btn-stop-record" disabled class="hidden w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm border border-slate-600 transition flex items-center justify-center space-x-2">
+                                <button id="btn-stop-record" class="hidden w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm border border-slate-600 transition flex items-center justify-center space-x-2">
                                     <i class="fa-solid fa-square text-xs text-red-500"></i>
                                     <span>Stop Recording</span>
                                 </button>
@@ -328,7 +328,8 @@
             recordedChunks: [],
             recordedVideos: [],
             recordingTimerInterval: null,
-            recordingSeconds: 0
+            recordingSeconds: 0,
+            voices: []
         };
 
         const toast = document.getElementById('toast');
@@ -344,6 +345,17 @@
             setTimeout(() => {
                 toast.classList.add('translate-x-full');
             }, 4000);
+        }
+
+        // Initialize Speech Synthesis Natural Voice list
+        function loadVoices() {
+            if ('speechSynthesis' in window) {
+                state.voices = window.speechSynthesis.getVoices();
+            }
+        }
+        loadVoices();
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
         }
 
         function getTelegramCredentials() {
@@ -366,7 +378,7 @@
             }
         });
 
-        // Test Telegram Bot
+        // Test Telegram Bot Connection
         document.getElementById('btn-test-telegram').addEventListener('click', async () => {
             const { token, chatId } = getTelegramCredentials();
 
@@ -393,7 +405,6 @@
             }
         });
 
-        // Helper to encode Unicode payload to Base64 safe for URLs
         function encodeDataForURL(obj) {
             const str = JSON.stringify(obj);
             return encodeURIComponent(btoa(unescape(encodeURIComponent(str))));
@@ -404,7 +415,7 @@
             return JSON.parse(decodeURIComponent(escape(atob(decodedStr))));
         }
 
-        // Setup Form Link Generator
+        // Generate URL Payload
         document.getElementById('setup-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const { token, chatId } = getTelegramCredentials();
@@ -472,20 +483,18 @@
             const urlParams = new URLSearchParams(window.location.search);
             const encodedData = urlParams.get('data');
 
-            if (!encodedData) return; // Keep recruiter setup view visible if no payload
+            if (!encodedData) return;
 
             try {
                 const config = decodeDataFromURL(encodedData);
                 state.sessionId = config.id;
                 state.config = config;
 
-                // Check single-use lock status
                 if (isSessionCompleted(config.id)) {
                     renderExpiredScreen();
                     return;
                 }
 
-                // Switch UI to Candidate View
                 document.getElementById('view-recruiter').classList.add('hidden');
                 document.getElementById('view-expired').classList.add('hidden');
                 document.getElementById('view-candidate').classList.remove('hidden');
@@ -519,13 +528,27 @@
             }
         });
 
+        // Natural Human-Sounding Voice Synthesis Engine
         function speakCurrentQuestion() {
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
+            
             const questionText = questions[state.currentQuestionIndex];
             const utterance = new SpeechSynthesisUtterance(questionText);
-            utterance.rate = 0.95;
-            utterance.pitch = 1.0;
+            
+            // Prefer natural/Google/Apple premium human voices over robotic default
+            const availableVoices = window.speechSynthesis.getVoices();
+            const preferredVoice = availableVoices.find(v => 
+                (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Premium') || v.name.includes('Samantha') || v.name.includes('Daniel') || v.name.includes('Karen')) && 
+                v.lang.startsWith('en')
+            ) || availableVoices.find(v => v.lang.startsWith('en'));
+
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            utterance.rate = 0.92; // Slightly slower pace sounds more conversational
+            utterance.pitch = 1.0; 
             window.speechSynthesis.speak(utterance);
         }
 
@@ -540,6 +563,7 @@
             document.getElementById('progress-bar').style.width = `${((index + 1) / questions.length) * 100}%`;
             
             document.getElementById('btn-start-record').classList.remove('hidden');
+            document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-circle text-xs"></i><span>Start Recording</span>';
             document.getElementById('btn-stop-record').classList.add('hidden');
             document.getElementById('btn-next-question').setAttribute('disabled', 'true');
             document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-info text-indigo-400"></i> <span>Ready to record response for Question ' + (index + 1) + '.</span>';
@@ -549,6 +573,7 @@
             }
         }
 
+        // Start Recording Handler
         document.getElementById('btn-start-record').addEventListener('click', () => {
             if (!state.mediaStream) return;
 
@@ -578,8 +603,12 @@
                 state.recordedVideos[state.currentQuestionIndex] = blob;
                 
                 document.getElementById('recording-badge').classList.add('hidden');
-                document.getElementById('btn-next-question').removeAttribute('disabled');
-                document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Response recorded. Proceed to next question.</span>';
+                
+                // ENABLE NEXT QUESTION BUTTON IMMEDIATELY WHEN STOPPED
+                const nextBtn = document.getElementById('btn-next-question');
+                nextBtn.removeAttribute('disabled');
+                
+                document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Response saved successfully. Click Next Question to continue.</span>';
             };
 
             state.mediaRecorder.start(1000);
@@ -604,10 +633,12 @@
             document.getElementById('recording-timer').textContent = `${mins}:${secs}`;
         }
 
+        // STOP RECORDING BUTTON HANDLER - FIX ENFORCED
         document.getElementById('btn-stop-record').addEventListener('click', () => {
             if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
                 state.mediaRecorder.stop();
                 clearInterval(state.recordingTimerInterval);
+                
                 document.getElementById('btn-stop-record').classList.add('hidden');
                 document.getElementById('btn-start-record').classList.remove('hidden');
                 document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-rotate-right text-xs"></i><span>Re-record Response</span>';
@@ -616,7 +647,6 @@
 
         document.getElementById('btn-next-question').addEventListener('click', () => {
             if (state.currentQuestionIndex < questions.length - 1) {
-                document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-circle text-xs"></i><span>Start Recording</span>';
                 loadQuestion(state.currentQuestionIndex + 1);
             } else {
                 if (state.mediaStream) {
@@ -703,7 +733,6 @@
                     setProgress(progressVal, `Uploaded video ${i + 1} of ${totalVideos}...`);
                 }
 
-                // Lock session on candidate device upon completion
                 markSessionCompleted(state.sessionId);
                 addLog('🔒 Session status permanently locked (single-use enforced).');
 
