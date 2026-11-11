@@ -1,22 +1,60 @@
 // Netlify Function. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in Netlify
 // Site configuration -> Environment variables. Never expose the bot token in HTML.
+const { getStore } = require("@netlify/blobs");
+
 const MAX_TOTAL_BYTES = 48 * 1024 * 1024; // leave headroom below Telegram's upload ceiling
 const MAX_VIDEO_BYTES = 18 * 1024 * 1024;
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: cors, body: "" };
-  if (event.httpMethod !== "POST") return response(405, { error: "Method not allowed" });
+
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
+
+  // Handle GET request to fetch interview details by ID
+  if (event.httpMethod === "GET") {
+    const interviewId = event.queryStringParameters && event.queryStringParameters.interview;
+    if (!interviewId) return response(400, { error: "Interview ID is required." });
+    try {
+      const store = getStore("interviews");
+      const recordStr = await store.get(interviewId);
+      if (!recordStr) return response(404, { error: "Interview not found or expired." });
+      return response(200, JSON.parse(recordStr));
+    } catch (err) {
+      console.error("Fetch interview error:", err);
+      return response(500, { error: err.message || "Failed to fetch interview details." });
+    }
+  }
+
+  if (event.httpMethod !== "POST") return response(405, { error: "Method not allowed" });
+
+  const contentType = event.headers["content-type"] || event.headers["Content-Type"] || "";
+
+  // Handle JSON POST request for creating an interview
+  if (contentType.toLowerCase().includes("application/json")) {
+    try {
+      const body = JSON.parse(event.body || "{}");
+      if (!body.id || !body.company || !body.candidate || !body.questions) {
+        return response(400, { error: "Invalid interview payload." });
+      }
+      const store = getStore("interviews");
+      await store.set(body.id, JSON.stringify(body));
+      return response(200, { success: true, interviewId: body.id });
+    } catch (err) {
+      console.error("Create interview error:", err);
+      return response(500, { error: err.message || "Failed to save interview." });
+    }
+  }
+
+  // Otherwise handle multipart/form-data for video submissions
   if (!token || !chatId) return response(500, { error: "Telegram bot secrets are not configured on the server." });
 
   try {
-    const contentType = event.headers["content-type"] || event.headers["Content-Type"] || "";
     if (!contentType.toLowerCase().includes("multipart/form-data")) return response(400, { error: "Expected multipart form data." });
     const raw = event.isBase64Encoded ? Buffer.from(event.body || "", "base64") : Buffer.from(event.body || "", "utf8");
     if (raw.length > MAX_TOTAL_BYTES) return response(413, { error: "The combined video upload is too large. Record shorter answers or split the interview." });
