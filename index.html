@@ -45,6 +45,7 @@ small{color:var(--muted)}footer{text-align:center;color:#94a3b8;padding:25px;fon
 </section>
 </main><footer>Global Interview · Secure video interview submission</footer>
 <script>
+/* The Telegram bot token is stored ONLY in Netlify environment variables. */
 const API_ENDPOINT="/.netlify/functions/telegram-submit";
 const $=id=>document.getElementById(id);
 let interview=null,stream=null,recorder=null,chunks=[],answers=[],index=0,blob=null;
@@ -55,78 +56,69 @@ document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>view(b.dataset.view))
 function addQuestion(v=""){const row=document.createElement("div");row.className="question";const input=document.createElement("input");input.value=v;input.required=true;input.maxLength=500;input.placeholder="Interview question";const remove=document.createElement("button");remove.type="button";remove.className="danger";remove.textContent="Remove";remove.onclick=()=>row.remove();row.append(input,remove);$("questions").append(row)}
 defaults.forEach(addQuestion);$("addQuestion").onclick=()=>addQuestion();
 $("logo").onchange=()=>{const f=$("logo").files[0];if(!f)return;if(f.size>2*1024*1024){alert("Logo must be 2 MB or smaller");$("logo").value="";return}$("preview").src=URL.createObjectURL(f);$("preview").classList.remove("hidden")};
-function b64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(",")[1]);r.onerror=reject;r.readAsDataURL(file)})}
 
-$("createForm").onsubmit=async e=>{
-  e.preventDefault();
-  const file=$("logo").files[0];
-  const questions=[...$("questions").querySelectorAll("input")].map(x=>x.value.trim()).filter(Boolean);
-  if(!file||!questions.length)return status($("createStatus"),"Upload a logo and add at least one question.","error");
-  if(file.size>2*1024*1024)return status($("createStatus"),"Logo must be 2 MB or smaller.","error");
-  $("createBtn").disabled=true;
-  try{
-    const record={
-      id:crypto.randomUUID(),
-      company:$("company").value.trim(),
-      address:$("address").value.trim(),
-      interviewer:$("interviewer").value.trim(),
-      candidate:$("candidate").value.trim(),
-      position:$("position").value.trim(),
-      logo:{name:file.name,type:file.type,data:await b64(file)},
-      questions,
-      createdAt:new Date().toISOString()
-    };
+// Compress logo image to a compact thumbnail to keep generated links short and professional
+function compressImage(file,maxWidth=120,maxHeight=120,quality=0.7){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=e=>{
+   const img=new Image();
+   img.onload=()=>{
+    let w=img.width,h=img.height;
+    if(w>h){if(w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth}}
+    else{if(h>maxHeight){w=Math.round(w*maxHeight/h);h=maxHeight}}
+    const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,w,h);
+    resolve(canvas.toDataURL("image/jpeg",quality));
+   };
+   img.onerror=reject;img.src=e.target.result;
+  };
+  reader.onerror=reject;reader.readAsDataURL(file);
+ });
+}
 
-    // Save interview configuration to server-side Netlify Blob storage
-    const res = await fetch(API_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(record)
-    });
-    const data = await res.json();
-    if(!res.ok || !data.success) throw Error(data.error || "Failed to save interview configuration.");
-
-    const url=new URL(location.href);
-    url.search="";
-    url.hash="";
-    url.searchParams.set("interview",record.id);
-    const link=url.toString(); // Clean short URL: https://yoursite.com/?interview=uuid
-
-    $("generatedLink").textContent=link;
-    $("generated").classList.remove("hidden");
-    interview=record;
-    status($("createStatus"),"Interview link generated successfully. Send it to the candidate.","success");
-  }catch(err){
-    status($("createStatus"),"Could not generate link: "+err.message,"error")
-  }finally{
-    $("createBtn").disabled=false
-  }
+$("createForm").onsubmit=async e=>{e.preventDefault();const file=$("logo").files[0];const questions=[...$("questions").querySelectorAll("input")].map(x=>x.value.trim()).filter(Boolean);if(!file||!questions.length)return status($("createStatus"),"Upload a logo and add at least one question.","error");if(file.size>2*1024*1024)return status($("createStatus"),"Logo must be 2 MB or smaller.","error");
+$("createBtn").disabled=true;
+try{
+ const compressedDataUrl=await compressImage(file);
+ const [,base64Data]=compressedDataUrl.split(",");
+ const record={id:crypto.randomUUID(),company:$("company").value.trim(),address:$("address").value.trim(),interviewer:$("interviewer").value.trim(),candidate:$("candidate").value.trim(),position:$("position").value.trim(),logo:{type:"image/jpeg",data:base64Data},questions,createdAt:new Date().toISOString()};
+ const url=new URL(location.href);url.search="";url.hash="";url.searchParams.set("interview",record.id);
+ const packed=btoa(unescape(encodeURIComponent(JSON.stringify(record))));
+ const link=url.toString()+"#data="+encodeURIComponent(packed);
+ $("generatedLink").textContent=link;$("generated").classList.remove("hidden");
+ interview=record;status($("createStatus"),"Interview link generated. Send it to the candidate.","success");
+}catch(err){status($("createStatus"),"Could not generate link: "+err.message,"error")}
+finally{$("createBtn").disabled=false}
 };
-
 $("copyLink").onclick=async()=>{try{await navigator.clipboard.writeText($("generatedLink").textContent);$("copyLink").textContent="Copied!"}catch{alert("Please copy the displayed link manually")}};
 $("openLink").onclick=()=>window.open($("generatedLink").textContent,"_blank");
+function decodeLink(){const raw=new URLSearchParams(location.hash.slice(1)).get("data");if(!raw)return null;try{return JSON.parse(decodeURIComponent(escape(atob(raw))))}catch{return null}}
 
-async function initCandidate(){
-  const rec=new URLSearchParams(location.search).get("interview");
-  if(!rec) return;
+function initCandidate(){
+ const rec=new URLSearchParams(location.search).get("interview");
+ if(!rec)return;
+ 
+ // Hide the employer/candidate navigation tabs entirely on the candidate's view
+ const tabsEl=$("tabs");
+ if(tabsEl) tabsEl.classList.add("hidden");
 
-  // Hide the navigation tabs so candidates cannot switch back or see employer creation tools
-  $("tabs").classList.add("hidden");
-  view("candidate");
-  status($("details"),"Loading interview details…");
-
-  try {
-    const res = await fetch(`${API_ENDPOINT}?interview=${rec}`);
-    if(!res.ok) throw Error("Interview not found or expired.");
-    interview = await res.json();
-
-    $("candidateTitle").textContent=interview.company+" — "+interview.position;
-    $("details").textContent=`Company: ${interview.company}\nAddress: ${interview.address}\nInterviewer: ${interview.interviewer}\nCandidate: ${interview.candidate}\nPosition: ${interview.position}`;
-    if(interview.logo?.data){const img=document.createElement("img");img.className="logo";img.alt="Company logo";img.src=`data:${interview.logo.type};base64,${interview.logo.data}`;$("logoWrap").append(img)}
-    $("consent").onchange=()=>{$("start").disabled=!$("consent").checked};
-  } catch(err) {
-    status($("details"),"This interview link is invalid, expired, or damaged. Ask the recruiter for a new link. ("+err.message+")","error");
-  }
+ view("candidate");
+ interview=decodeLink();
+ if(!interview||interview.id!==rec){
+  status($("details"),"This interview link is invalid or damaged. Ask the recruiter for a new link.","error");
+  return;
+ }
+ $("candidateTitle").textContent=interview.company+" — "+interview.position;
+ $("details").textContent=`Company: ${interview.company}\nAddress: ${interview.address}\nInterviewer: ${interview.interviewer}\nCandidate: ${interview.candidate}\nPosition: ${interview.position}`;
+ if(interview.logo?.data){
+  const img=document.createElement("img");
+  img.className="logo";
+  img.alt="Company logo";
+  img.src=`data:${interview.logo.type||"image/jpeg"};base64,${interview.logo.data}`;
+  $("logoWrap").append(img);
+ }
+ $("consent").onchange=()=>{$("start").disabled=!$("consent").checked};
 }
 
 function speak(q){if(!("speechSynthesis"in window))return; speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(q);u.lang="en-US";u.rate=.92;speechSynthesis.speak(u)}
