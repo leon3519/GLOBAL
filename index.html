@@ -62,7 +62,7 @@
             <div class="space-y-3">
                 <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Interview Link Expired</h2>
                 <p class="text-sm text-slate-400 leading-relaxed">
-                    This interview link has already been used and is no longer valid. Each candidate link is strictly single-use to ensure security and assessment integrity.
+                    This interview session has already been completed and submitted. Each candidate link is strictly single-use to ensure assessment integrity.
                 </p>
             </div>
             <div class="pt-4">
@@ -78,7 +78,7 @@
             <div class="bg-gradient-to-r from-indigo-900/40 via-slate-800 to-slate-800 border border-indigo-500/30 rounded-2xl p-6 sm:p-8 shadow-xl">
                 <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Recruiter Setup & Link Generator</h1>
                 <p class="text-slate-400 mt-2 text-sm max-w-2xl">
-                    Configure interview parameters for your international candidate. Share the generated short link with the candidate. Video recordings will be transmitted directly to your embedded Telegram Bot.
+                    Configure interview parameters for your international candidate. Share the generated link via WhatsApp or email. Video recordings will be transmitted directly to your embedded Telegram Bot.
                 </p>
             </div>
 
@@ -98,14 +98,14 @@
                             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
                     </div>
 
-                    <!-- Interviewee/Representative Name -->
+                    <!-- Recruiter Name -->
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Recruiter / Representative Name</label>
                         <input type="text" id="rep-name" required placeholder="e.g. Sarah Jenkins" 
                             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
                     </div>
 
-                    <!-- Candidate's Name -->
+                    <!-- Candidate Name -->
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Candidate's Full Name</label>
                         <input type="text" id="candidate-name" required placeholder="e.g. Alejandro Morales" 
@@ -126,7 +126,7 @@
                             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition cursor-pointer">
                     </div>
 
-                    <!-- Optional Override Telegram Bot Token -->
+                    <!-- Optional Telegram Bot Token -->
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Telegram Bot Token</label>
@@ -136,7 +136,7 @@
                             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition text-sm">
                     </div>
 
-                    <!-- Optional Override Telegram Chat ID -->
+                    <!-- Optional Telegram Chat ID -->
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Telegram Chat ID</label>
@@ -154,7 +154,7 @@
                     </button>
                     <button type="submit" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-link"></i>
-                        <span>Generate Short Link</span>
+                        <span>Generate Candidate Link</span>
                     </button>
                 </div>
             </form>
@@ -163,9 +163,9 @@
             <div id="link-output-card" class="hidden bg-slate-800 border border-emerald-500/40 rounded-2xl p-6 sm:p-8 shadow-xl space-y-4">
                 <div class="flex items-center space-x-3 text-emerald-400">
                     <i class="fa-solid fa-circle-check text-2xl"></i>
-                    <h3 class="text-lg font-bold text-white">Short Candidate Link Generated!</h3>
+                    <h3 class="text-lg font-bold text-white">Shareable Candidate Link Generated!</h3>
                 </div>
-                <p class="text-sm text-slate-300">Share this clean link with the candidate. It will automatically lock permanently once the interview is completed.</p>
+                <p class="text-sm text-slate-300">Copy and send this link to the candidate via WhatsApp. It carries all details encoded inside and locks automatically once submitted.</p>
                 <div class="flex items-center space-x-3">
                     <input type="text" id="generated-url" readonly class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-300 text-sm select-all font-mono">
                     <button id="btn-copy-link" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-xl text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap">
@@ -175,7 +175,7 @@
                 </div>
                 <div class="flex justify-end pt-2">
                     <button id="btn-preview-interview" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center space-x-1.5 transition">
-                        <span>Launch Candidate Session</span>
+                        <span>Preview Candidate Session</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
@@ -184,7 +184,6 @@
 
         <!-- VIEW 2: CANDIDATE INTERVIEW INTERFACE -->
         <div id="view-candidate" class="hidden space-y-6">
-            <!-- Company & Candidate Header Banner -->
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
                 <div class="flex items-center space-x-4">
                     <div id="candidate-logo-container" class="w-16 h-16 rounded-xl bg-slate-700 overflow-hidden flex items-center justify-center border border-slate-600 shrink-0">
@@ -207,7 +206,6 @@
 
             <!-- Interview Stage Box -->
             <div id="interview-stage-container" class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
-                <!-- Progress Bar Top -->
                 <div class="bg-slate-900 px-6 py-3 border-b border-slate-700 flex items-center justify-between">
                     <span id="question-counter" class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Question 1 of 4</span>
                     <div class="w-32 bg-slate-800 rounded-full h-2 overflow-hidden">
@@ -216,7 +214,6 @@
                 </div>
 
                 <div class="p-6 sm:p-8 space-y-6">
-                    <!-- Question Prompt & Audio TTS control -->
                     <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-5 flex items-start justify-between gap-4">
                         <div>
                             <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">Interview Question</span>
@@ -227,19 +224,15 @@
                         </button>
                     </div>
 
-                    <!-- Video Recording Workspace -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Live Camera Preview (Spans 2 cols) -->
                         <div class="lg:col-span-2 bg-slate-900 rounded-xl overflow-hidden border border-slate-700 relative aspect-video flex items-center justify-center">
                             <video id="camera-preview" autoplay muted playsinline class="w-full h-full object-cover"></video>
                             
-                            <!-- Recording Indicator Overlay -->
                             <div id="recording-badge" class="hidden absolute top-4 left-4 bg-red-500/90 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 backdrop-blur shadow-lg">
                                 <span class="w-2.5 h-2.5 rounded-full bg-white pulse-recording"></span>
                                 <span id="recording-timer">00:00</span>
                             </div>
 
-                            <!-- Initial Camera Permission Prompt / Placeholder -->
                             <div id="camera-placeholder" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
                                 <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-indigo-400 mb-3 border border-slate-700">
                                     <i class="fa-solid fa-video text-2xl"></i>
@@ -252,7 +245,6 @@
                             </div>
                         </div>
 
-                        <!-- Recording Controls & Status Sidebar -->
                         <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between space-y-4">
                             <div>
                                 <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Response Controls</h4>
@@ -293,13 +285,12 @@
             </div>
             <div class="space-y-2">
                 <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Interview Completed Successfully!</h2>
-                <p id="success-subtitle" class="text-sm text-slate-400">Your responses have been successfully recorded and transmitted to the recruiter's Telegram bot.</p>
+                <p id="success-subtitle" class="text-sm text-slate-400">Your responses have been successfully recorded and transmitted.</p>
             </div>
 
-            <!-- Upload Progress Card -->
             <div id="upload-progress-card" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-left space-y-4 shadow-xl">
                 <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
-                    <span id="upload-status-label">Transmitting data to Telegram...</span>
+                    <span id="upload-status-label">Transmitting data...</span>
                     <span id="upload-percentage">0%</span>
                 </div>
                 <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
@@ -309,31 +300,18 @@
                     <div>[00:00] Initializing secure payload transmission...</div>
                 </div>
             </div>
-
-            <div class="pt-4">
-                <button onclick="window.location.href = window.location.pathname;" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm border border-slate-700 transition">
-                    Done & Exit Session
-                </button>
-            </div>
         </div>
 
     </main>
 
-    <!-- Footer -->
     <footer class="bg-slate-800/40 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
         GlobalHire Remote Recruitment Protocol &bull; Secure Single-Use Session
     </footer>
 
-    <!-- JavaScript Application Logic -->
     <script>
-        // =========================================================================
-        // HARDCODED TELEGRAM CREDENTIALS
-        // Replace these values with your bot's token & destination chat ID.
-        // =========================================================================
         const HARDCODED_TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN_HERE";
         const HARDCODED_TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID_HERE";
 
-        // Interview Questions Set
         const questions = [
             "Tell us about yourself, your professional background, and why you are seeking a career opportunity abroad.",
             "Why do you specifically want to work with our company, and how do you plan to adapt to our corporate culture and time zones?",
@@ -341,7 +319,6 @@
             "Describe a complex professional challenge or project you successfully managed in your past role and what key lessons you learned."
         ];
 
-        // Application State
         let state = {
             sessionId: null,
             config: null,
@@ -354,7 +331,6 @@
             recordingSeconds: 0
         };
 
-        // DOM Elements
         const toast = document.getElementById('toast');
         const toastTitle = document.getElementById('toast-title');
         const toastMessage = document.getElementById('toast-message');
@@ -370,7 +346,6 @@
             }, 4000);
         }
 
-        // Helper to get active Telegram Token & Chat ID
         function getTelegramCredentials() {
             const inputToken = document.getElementById('telegram-token')?.value.trim();
             const inputChatId = document.getElementById('telegram-chatid')?.value.trim();
@@ -381,15 +356,12 @@
             return { token, chatId };
         }
 
-        // Handle Logo Image Upload to Base64
         let logoBase64 = '';
         document.getElementById('company-logo').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onloadend = function() {
-                    logoBase64 = reader.result;
-                };
+                reader.onloadend = function() { logoBase64 = reader.result; };
                 reader.readAsDataURL(file);
             }
         });
@@ -399,7 +371,7 @@
             const { token, chatId } = getTelegramCredentials();
 
             if (!token || token === "YOUR_TELEGRAM_BOT_TOKEN_HERE" || !chatId || chatId === "YOUR_TELEGRAM_CHAT_ID_HERE") {
-                showToast('Credentials Missing', 'Please configure your Telegram Bot Token and Chat ID at the top of the script or in the fields.', 'error');
+                showToast('Credentials Missing', 'Please configure your Telegram Bot Token and Chat ID.', 'error');
                 return;
             }
 
@@ -408,10 +380,7 @@
                 const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: '🟢 GlobalHire Bot Connection Verified!'
-                    })
+                    body: JSON.stringify({ chat_id: chatId, text: '🟢 GlobalHire Bot Connection Verified!' })
                 });
                 const data = await res.json();
                 if (data.ok) {
@@ -424,41 +393,44 @@
             }
         });
 
-        // Generate Short Unique Session Link & Save to localStorage
+        // Helper to encode Unicode payload to Base64 safe for URLs
+        function encodeDataForURL(obj) {
+            const str = JSON.stringify(obj);
+            return encodeURIComponent(btoa(unescape(encodeURIComponent(str))));
+        }
+
+        function decodeDataFromURL(str) {
+            const decodedStr = decodeURIComponent(str);
+            return JSON.parse(decodeURIComponent(escape(atob(decodedStr))));
+        }
+
+        // Setup Form Link Generator
         document.getElementById('setup-form').addEventListener('submit', (e) => {
             e.preventDefault();
-
             const { token, chatId } = getTelegramCredentials();
 
-            const sessionId = 'session_' + Math.random().toString(36).substring(2, 9);
+            const sessionId = 'gh_' + Math.random().toString(36).substring(2, 10);
             const config = {
+                id: sessionId,
                 companyName: document.getElementById('company-name').value.trim(),
                 companyAddress: document.getElementById('company-address').value.trim(),
                 repName: document.getElementById('rep-name').value.trim(),
                 candidateName: document.getElementById('candidate-name').value.trim(),
                 jobPosition: document.getElementById('job-position').value.trim(),
-                logo: logoBase64,
                 telegramToken: token,
                 telegramChatId: chatId
             };
 
-            // Save config to localStorage keyed by short session ID
-            try {
-                localStorage.setItem(`gh_session_${sessionId}`, JSON.stringify(config));
-            } catch (err) {
-                console.warn('LocalStorage save warning, falling back:', err);
-            }
-
-            state.sessionId = sessionId;
-            const generatedUrl = window.location.origin + window.location.pathname + '#id=' + sessionId;
+            const encodedParam = encodeDataForURL(config);
+            const baseUrl = window.location.origin + window.location.pathname;
+            const generatedUrl = `${baseUrl}?data=${encodedParam}`;
 
             document.getElementById('generated-url').value = generatedUrl;
             document.getElementById('link-output-card').classList.remove('hidden');
             document.getElementById('link-output-card').scrollIntoView({ behavior: 'smooth' });
-            showToast('Short Link Ready', 'Clean session link created.', 'success');
+            showToast('Candidate Link Ready', 'Link generated successfully.', 'success');
         });
 
-        // Copy Link Button
         document.getElementById('btn-copy-link').addEventListener('click', () => {
             const urlInput = document.getElementById('generated-url');
             urlInput.select();
@@ -466,30 +438,26 @@
             showToast('Copied', 'Interview link copied to clipboard.', 'success');
         });
 
-        // Preview / Launch Interview Button
         document.getElementById('btn-preview-interview').addEventListener('click', () => {
-            if (state.sessionId) {
-                window.location.hash = 'id=' + state.sessionId;
-                initializeSessionFromHash();
-            }
+            const url = document.getElementById('generated-url').value;
+            if (url) window.location.href = url;
         });
 
-        // Router / Hash Checker
         window.addEventListener('DOMContentLoaded', () => {
-            initializeSessionFromHash();
+            initializeCandidateSession();
         });
 
         function isSessionCompleted(sessionId) {
-            const completedList = JSON.parse(localStorage.getItem('gh_completed_sessions') || '[]');
-            return completedList.includes(sessionId);
+            const completed = JSON.parse(localStorage.getItem('gh_completed_sessions') || '[]');
+            return completed.includes(sessionId);
         }
 
         function markSessionCompleted(sessionId) {
             if (!sessionId) return;
-            const completedList = JSON.parse(localStorage.getItem('gh_completed_sessions') || '[]');
-            if (!completedList.includes(sessionId)) {
-                completedList.push(sessionId);
-                localStorage.setItem('gh_completed_sessions', JSON.stringify(completedList));
+            const completed = JSON.parse(localStorage.getItem('gh_completed_sessions') || '[]');
+            if (!completed.includes(sessionId)) {
+                completed.push(sessionId);
+                localStorage.setItem('gh_completed_sessions', JSON.stringify(completed));
             }
         }
 
@@ -500,56 +468,41 @@
             document.getElementById('view-expired').classList.remove('hidden');
         }
 
-        function initializeSessionFromHash() {
-            if (!window.location.hash || !window.location.hash.includes('id=')) {
-                return; // Default recruiter dashboard
-            }
+        function initializeCandidateSession() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedData = urlParams.get('data');
 
-            const sessionId = window.location.hash.split('id=')[1];
-            if (!sessionId) return;
-
-            // Enforce Single-Use Lock Check
-            if (isSessionCompleted(sessionId)) {
-                renderExpiredScreen();
-                return;
-            }
-
-            // Retrieve configuration from localStorage
-            const savedData = localStorage.getItem(`gh_session_${sessionId}`);
-            if (!savedData) {
-                showToast('Session Not Found', 'This session ID is invalid or has expired.', 'error');
-                return;
-            }
+            if (!encodedData) return; // Keep recruiter setup view visible if no payload
 
             try {
-                state.sessionId = sessionId;
-                state.config = JSON.parse(savedData);
+                const config = decodeDataFromURL(encodedData);
+                state.sessionId = config.id;
+                state.config = config;
 
-                // Switch Views
+                // Check single-use lock status
+                if (isSessionCompleted(config.id)) {
+                    renderExpiredScreen();
+                    return;
+                }
+
+                // Switch UI to Candidate View
                 document.getElementById('view-recruiter').classList.add('hidden');
                 document.getElementById('view-expired').classList.add('hidden');
                 document.getElementById('view-candidate').classList.remove('hidden');
 
-                // Populate Candidate UI
-                document.getElementById('display-company-name').textContent = state.config.companyName;
-                document.getElementById('display-company-address').innerHTML = `<i class="fa-solid fa-location-dot mr-1"></i> ${state.config.companyAddress}`;
-                document.getElementById('display-candidate-name').textContent = state.config.candidateName;
-                document.getElementById('display-job-position').textContent = state.config.jobPosition;
-                document.getElementById('display-rep-name').textContent = state.config.repName;
-
-                if (state.config.logo) {
-                    const logoContainer = document.getElementById('candidate-logo-container');
-                    logoContainer.innerHTML = `<img src="${state.config.logo}" alt="Logo" class="w-full h-full object-cover">`;
-                }
+                document.getElementById('display-company-name').textContent = config.companyName;
+                document.getElementById('display-company-address').innerHTML = `<i class="fa-solid fa-location-dot mr-1"></i> ${config.companyAddress}`;
+                document.getElementById('display-candidate-name').textContent = config.candidateName;
+                document.getElementById('display-job-position').textContent = config.jobPosition;
+                document.getElementById('display-rep-name').textContent = config.repName;
 
                 loadQuestion(0);
             } catch (err) {
                 console.error(err);
-                showToast('Error', 'Unable to parse session data.', 'error');
+                showToast('Invalid Link', 'This link is corrupted or malformed.', 'error');
             }
         }
 
-        // Camera Initialization
         document.getElementById('btn-init-camera').addEventListener('click', async () => {
             try {
                 state.mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -566,7 +519,6 @@
             }
         });
 
-        // Text-to-Speech Question Reading
         function speakCurrentQuestion() {
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
@@ -597,7 +549,6 @@
             }
         }
 
-        // Start Recording
         document.getElementById('btn-start-record').addEventListener('click', () => {
             if (!state.mediaStream) return;
 
@@ -628,7 +579,7 @@
                 
                 document.getElementById('recording-badge').classList.add('hidden');
                 document.getElementById('btn-next-question').removeAttribute('disabled');
-                document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Response recorded. Proceed to next question or re-record.</span>';
+                document.getElementById('recording-status-text').innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Response recorded. Proceed to next question.</span>';
             };
 
             state.mediaRecorder.start(1000);
@@ -653,7 +604,6 @@
             document.getElementById('recording-timer').textContent = `${mins}:${secs}`;
         }
 
-        // Stop Recording
         document.getElementById('btn-stop-record').addEventListener('click', () => {
             if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
                 state.mediaRecorder.stop();
@@ -664,7 +614,6 @@
             }
         });
 
-        // Next Question Handler
         document.getElementById('btn-next-question').addEventListener('click', () => {
             if (state.currentQuestionIndex < questions.length - 1) {
                 document.getElementById('btn-start-record').innerHTML = '<i class="fa-solid fa-circle text-xs"></i><span>Start Recording</span>';
@@ -677,7 +626,6 @@
             }
         });
 
-        // Telegram Upload & Single-Use Enforcement Sequence
         async function startTelegramUploadSequence() {
             document.getElementById('view-candidate').classList.add('hidden');
             document.getElementById('view-success').classList.remove('hidden');
@@ -714,7 +662,6 @@
                 `📅 *Date:* ${new Date().toUTCString()}`;
 
             try {
-                // 1. Send Text Summary
                 const textRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -731,7 +678,6 @@
                 addLog('Candidate metadata successfully sent to Telegram.');
                 setProgress(30, 'Uploading video responses...');
 
-                // 2. Upload Videos
                 const totalVideos = state.recordedVideos.length;
                 for (let i = 0; i < totalVideos; i++) {
                     const videoBlob = state.recordedVideos[i];
@@ -757,12 +703,12 @@
                     setProgress(progressVal, `Uploaded video ${i + 1} of ${totalVideos}...`);
                 }
 
-                // 3. LOCK SESSION PERMANENTLY (SINGLE-USE ENFORCEMENT)
+                // Lock session on candidate device upon completion
                 markSessionCompleted(state.sessionId);
                 addLog('🔒 Session status permanently locked (single-use enforced).');
 
                 setProgress(100, 'All video recordings successfully delivered!');
-                showToast('Completed', 'All candidate responses delivered and session locked.', 'success');
+                showToast('Completed', 'All candidate responses delivered.', 'success');
 
             } catch (err) {
                 console.error(err);
