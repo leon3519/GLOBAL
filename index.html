@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Global Interview</title>
+<style>
+:root{--blue:#2563eb;--navy:#101b35;--muted:#64748b;--line:#e2e8f0;--bg:#f4f7fb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#172033;font:15px/1.5 system-ui,Segoe UI,sans-serif}
+header{background:linear-gradient(115deg,#101b35,#1e40af);color:white;padding:22px max(18px,calc((100% - 1050px)/2))}
+.brand{font-size:22px;font-weight:850}.brand span{color:#93c5fd}.tag{font-size:12px;color:#dbeafe}
+main{max-width:1050px;margin:30px auto;padding:0 16px}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px;box-shadow:0 8px 25px #0f172a08}
+h1{font-size:29px;margin:0 0 8px}h2{margin:0 0 12px}p{color:var(--muted);margin:5px 0 16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:750;margin-bottom:6px}
+input,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit}input[type=file]{padding:9px}
+button{border:0;border-radius:10px;padding:11px 16px;background:var(--blue);color:white;font-weight:750;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#e8eefc;color:#1e40af}.danger{background:#fee2e2;color:#991b1b}
+.tabs{display:flex;gap:8px;margin-bottom:18px}.tab{background:#e8eefc;color:#1e40af}.tab.active{background:#1d4ed8;color:#fff}
+.hidden{display:none!important}.status{background:#eff6ff;color:#1e40af;border-radius:10px;padding:12px;white-space:pre-wrap;margin:14px 0}.error{background:#fef2f2;color:#991b1b}.success{background:#f0fdf4;color:#166534}
+.question{display:flex;gap:8px;margin:9px 0}.question input{flex:1}.logo{width:90px;height:90px;object-fit:contain;border:1px solid var(--line);border-radius:12px;margin:10px 0}
+.link{background:#f8fafc;border:1px dashed #94a3b8;border-radius:10px;padding:12px;overflow-wrap:anywhere}
+.video{width:100%;max-height:390px;background:#0b1220;border-radius:14px;margin:12px 0}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.progress{height:8px;background:#e2e8f0;border-radius:20px;overflow:hidden}.progress div{height:100%;background:var(--blue);width:0}
+small{color:var(--muted)}footer{text-align:center;color:#94a3b8;padding:25px;font-size:12px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.panel{padding:17px}h1{font-size:25px}}
+</style></head>
+<body>
+<header><div class="brand">GLOBAL <span>INTERVIEW</span></div><div class="tag">Remote recruitment video interviews</div></header>
+<main>
+<div class="tabs" id="tabs"><button class="tab active" data-view="employer">Create interview</button><button class="tab" data-view="candidate">Candidate interview</button></div>
+<section class="panel" id="employerView">
+<h1>Create an interview link</h1><p>Complete the employer details, upload the company logo and prepare the questions.</p>
+<form id="createForm"><div class="grid">
+<div><label>Company name *</label><input id="company" required maxlength="120"></div>
+<div><label>Company address *</label><input id="address" required maxlength="240"></div>
+<div><label>Interviewer name *</label><input id="interviewer" required maxlength="120"></div>
+<div><label>Candidate's name *</label><input id="candidate" required maxlength="120"></div>
+<div><label>Position *</label><input id="position" required maxlength="120"></div>
+<div><label>Company logo *</label><input id="logo" type="file" accept="image/png,image/jpeg,image/webp" required><small>PNG/JPG/WEBP, maximum 2 MB</small><img id="preview" class="logo hidden" alt="Company logo preview"></div>
+<div class="full"><label>Interview questions (spoken aloud)</label><div id="questions"></div><button type="button" class="secondary" id="addQuestion">+ Add question</button></div>
+</div><div class="actions"><button id="createBtn">Generate interview link</button></div></form>
+<div id="createStatus" class="status hidden"></div><div id="generated" class="hidden"><h2>Your interview link</h2><div class="link" id="generatedLink"></div><div class="actions"><button id="copyLink" type="button">Copy link</button><button id="openLink" type="button" class="secondary">Open candidate view</button></div><small>Keep this link private and send it only to the intended candidate.</small></div>
+</section>
+<section class="panel hidden" id="candidateView">
+<div id="intro"><div id="logoWrap"></div><h1 id="candidateTitle">Candidate interview</h1><div id="details" class="status">Loading interview details…</div><p>Questions will be read aloud. Record a video response to each question. Your recordings will be sent to the recruiting team's Telegram chat.</p><label class="hint"><input type="checkbox" id="consent" style="width:auto"> I consent to video/audio recording and sharing my interview with the recruiting team for hiring assessment.</label><div class="actions"><button id="start" disabled>Start interview</button></div></div>
+<div id="stage" class="hidden"><div class="progress"><div id="bar"></div></div><p id="counter"></p><h2 id="questionText"></h2><button class="secondary" id="repeat" type="button">Play question again</button><video id="live" class="video" autoplay muted playsinline></video><video id="review" class="video hidden" controls playsinline></video><div id="recordStatus" class="status">Preparing camera…</div><div class="actions"><button id="record">Start recording</button><button id="stop" class="danger hidden">Stop recording</button><button id="retry" class="secondary hidden">Record again</button><button id="next" class="hidden">Use answer & continue</button></div></div>
+<div id="finished" class="hidden"><h2>Interview submitted</h2><div id="finishStatus" class="status">Sending your recordings…</div></div>
+</section>
+</main><footer>Global Interview · Secure video interview submission</footer>
+<script>
+/* The Telegram bot token is stored ONLY in Netlify environment variables. */
+const API_ENDPOINT="/.netlify/functions/telegram-submit";
+const $=id=>document.getElementById(id);
+let interview=null,stream=null,recorder=null,chunks=[],answers=[],index=0,blob=null;
+const defaults=["Please introduce yourself and describe your relevant experience.","Why are you interested in this position?","Describe a challenge you faced at work and how you handled it.","What strengths would you bring to this role?","Is there anything else you would like us to know?"];
+function status(el,msg,type=""){el.textContent=msg;el.className="status "+type;el.classList.remove("hidden")}
+function view(name){$("employerView").classList.toggle("hidden",name!=="employer");$("candidateView").classList.toggle("hidden",name!=="candidate");document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.view===name))}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>view(b.dataset.view));
+function addQuestion(v=""){const row=document.createElement("div");row.className="question";const input=document.createElement("input");input.value=v;input.required=true;input.maxLength=500;input.placeholder="Interview question";const remove=document.createElement("button");remove.type="button";remove.className="danger";remove.textContent="Remove";remove.onclick=()=>row.remove();row.append(input,remove);$("questions").append(row)}
+defaults.forEach(addQuestion);$("addQuestion").onclick=()=>addQuestion();
+$("logo").onchange=()=>{const f=$("logo").files[0];if(!f)return;if(f.size>2*1024*1024){alert("Logo must be 2 MB or smaller");$("logo").value="";return}$("preview").src=URL.createObjectURL(f);$("preview").classList.remove("hidden")};
+function b64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(",")[1]);r.onerror=reject;r.readAsDataURL(file)})}
+$("createForm").onsubmit=async e=>{e.preventDefault();const file=$("logo").files[0];const questions=[...$("questions").querySelectorAll("input")].map(x=>x.value.trim()).filter(Boolean);if(!file||!questions.length)return status($("createStatus"),"Upload a logo and add at least one question.","error");if(file.size>2*1024*1024)return status($("createStatus"),"Logo must be 2 MB or smaller.","error");
+$("createBtn").disabled=true;
+try{
+ const record={id:crypto.randomUUID(),company:$("company").value.trim(),address:$("address").value.trim(),interviewer:$("interviewer").value.trim(),candidate:$("candidate").value.trim(),position:$("position").value.trim(),logo:{name:file.name,type:file.type,data:await b64(file)},questions,createdAt:new Date().toISOString()};
+ const url=new URL(location.href);url.search="";url.hash="";url.searchParams.set("interview",record.id);
+ const packed=btoa(unescape(encodeURIComponent(JSON.stringify(record))));
+ // Link contains the interview setup (including logo) in its URL fragment; fragments are not sent to web servers.
+ const link=url.toString()+"#data="+encodeURIComponent(packed);
+ $("generatedLink").textContent=link;$("generated").classList.remove("hidden");
+ // Store the same payload server-side in Telegram when the first candidate submits.
+ // The candidate URL itself is self-contained, so no database is used.
+ interview=record;status($("createStatus"),"Interview link generated. Send it to the candidate.","success");
+}catch(err){status($("createStatus"),"Could not generate link: "+err.message,"error")}
+finally{$("createBtn").disabled=false}
+};
+$("copyLink").onclick=async()=>{try{await navigator.clipboard.writeText($("generatedLink").textContent);$("copyLink").textContent="Copied!"}catch{alert("Please copy the displayed link manually")}};
+$("openLink").onclick=()=>window.open($("generatedLink").textContent,"_blank");
+function decodeLink(){const raw=new URLSearchParams(location.hash.slice(1)).get("data");if(!raw)return null;try{return JSON.parse(decodeURIComponent(escape(atob(raw))))}catch{return null}}
+function initCandidate(){const rec=new URLSearchParams(location.search).get("interview");if(!rec)return;view("candidate");interview=decodeLink();if(!interview||interview.id!==rec){status($("details"),"This interview link is invalid or damaged. Ask the recruiter for a new link.","error");return}
+ $("candidateTitle").textContent=interview.company+" — "+interview.position;
+ $("details").textContent=`Company: ${interview.company}\nAddress: ${interview.address}\nInterviewer: ${interview.interviewer}\nCandidate: ${interview.candidate}\nPosition: ${interview.position}`;
+ if(interview.logo?.data){const img=document.createElement("img");img.className="logo";img.alt="Company logo";img.src=`data:${interview.logo.type};base64,${interview.logo.data}`;$("logoWrap").append(img)}
+ $("consent").onchange=()=>{$("start").disabled=!$("consent").checked};
+}
+function speak(q){if(!("speechSynthesis"in window))return; speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(q);u.lang="en-US";u.rate=.92;speechSynthesis.speak(u)}
+async function camera(){if(!navigator.mediaDevices?.getUserMedia)throw Error("Camera requires HTTPS and a modern browser.");stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280},height:{ideal:720}},audio:true});$("live").srcObject=stream}
+$("start").onclick=async()=>{try{await camera();$("intro").classList.add("hidden");$("stage").classList.remove("hidden");index=0;answers=[];render()}catch(e){status($("details"),"Camera/microphone access failed: "+e.message+". Allow permissions and open this link over HTTPS.","error")}};
+function render(){const q=interview.questions[index];$("questionText").textContent=q;$("counter").textContent=`Question ${index+1} of ${interview.questions.length}`;$("bar").style.width=(index/interview.questions.length*100)+"%";$("live").classList.remove("hidden");$("review").classList.add("hidden");$("record").classList.remove("hidden");$("stop").classList.add("hidden");$("retry").classList.add("hidden");$("next").classList.add("hidden");$("record").disabled=false;blob=null;status($("recordStatus"),"Listen to the question, then start your video answer.");speak(q)}
+$("repeat").onclick=()=>speak(interview.questions[index]);
+$("record").onclick=()=>{chunks=[];const mime=["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"].find(MediaRecorder.isTypeSupported);try{recorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined)}catch(e){return status($("recordStatus"),"Video recording is not supported in this browser.","error")}
+recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};recorder.onstop=()=>{blob=new Blob(chunks,{type:recorder.mimeType||"video/webm"});$("review").src=URL.createObjectURL(blob);$("review").classList.remove("hidden");$("live").classList.add("hidden");$("retry").classList.remove("hidden");$("next").classList.remove("hidden");status($("recordStatus"),"Review your recording, then continue.","success")};recorder.start(1000);$("record").classList.add("hidden");$("stop").classList.remove("hidden");status($("recordStatus"),"Recording…","success")};
+$("stop").onclick=()=>{if(recorder&&recorder.state!=="inactive")recorder.stop();$("stop").classList.add("hidden")};
+$("retry").onclick=render;
+$("next").onclick=async()=>{if(!blob)return;answers[index]=blob;index++;if(index<interview.questions.length)return render();await submit()};
+async function submit(){ $("stage").classList.add("hidden");$("finished").classList.remove("hidden");status($("finishStatus"),"Sending interview details and video answers to Telegram. Please keep this page open…");
+try{
+ const meta={interviewId:interview.id,company:interview.company,address:interview.address,interviewer:interview.interviewer,candidate:interview.candidate,position:interview.position,submittedAt:new Date().toISOString(),questions:interview.questions};
+ const form=new FormData();form.append("metadata",JSON.stringify(meta));
+ for(let i=0;i<answers.length;i++)form.append("videos",answers[i],`answer-${i+1}.webm`);
+ const res=await fetch(API_ENDPOINT,{method:"POST",body:form});const data=await res.json();if(!res.ok||!data.success)throw Error(data.error||"Telegram submission failed");
+ status($("finishStatus"),"Your interview has been submitted successfully. The recruiting team has been notified.","success");
+}catch(e){status($("finishStatus"),"Submission failed: "+e.message+". Please contact the recruiter and ask for a new submission link if needed.","error")}
+finally{if(stream)stream.getTracks().forEach(t=>t.stop())}
+}
+initCandidate();
+</script></body></html>
