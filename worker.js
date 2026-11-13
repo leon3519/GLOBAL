@@ -25,12 +25,29 @@ export default {
       if (req.headers.get('x-telegram-bot-api-secret-token') !== env.SECRET) return new Response('no', { status: 403 });
       await onUpdate(await req.json(), env, room);
       res = new Response('ok');
+    } else if (P[0] === 'create' && req.method === 'POST') {
+      if (req.headers.get('x-key') !== env.ADMIN_KEY) res = new Response('{"error":"Wrong access key"}', { status: 403 });
+      else {
+        const d = await req.json();
+        const id = await create(d, env, room);
+        await tg(env, 'sendMessage', { chat_id: env.OWNER_CHAT_ID, text: `🆕 Session ready for ${d.name}\n${env.SITE}/?s=${id}\n\nA live panel will appear here when they join.` });
+        res = Response.json({ id });
+      }
     } else res = new Response('ok');
     const out = new Response(res.body, res);
     for (const [k, v] of Object.entries(CORS)) out.headers.set(k, v);
     return out;
   },
 };
+
+async function create(d, env, room, owner = env.OWNER_CHAT_ID) {
+  const id = Math.random().toString(36).slice(2, 8);
+  const c = k => String(d[k] || '').slice(0, 120);
+  const s = { id, owner, name: c('name'), pos: c('pos'), company: c('company'), address: c('address'), rep: c('rep'), logo: String(d.logo || '').slice(0, 40000) };
+  await room(id).fetch('https://r/init', { method: 'POST', body: JSON.stringify(s) });
+  await room('_').fetch('https://r/active', { method: 'POST', body: JSON.stringify({ id }) });
+  return id;
+}
 
 async function onUpdate(u, env, room) {
   const cb = u.callback_query, m = u.message;
@@ -50,9 +67,7 @@ async function onUpdate(u, env, room) {
   if (t.startsWith('/new')) {
     const [name, pos, company] = t.slice(4).split('|').map(s => s.trim());
     if (!name) return reply('Usage: /new Candidate Name | Position | Company');
-    const id = Math.random().toString(36).slice(2, 8);
-    await post(id, 'init', { id, owner: chat, name, pos: pos || '', company: company || '' });
-    await post('_', 'active', { id });
+    const id = await create({ name, pos, company }, env, room, chat);
     return reply(`Link for ${name}:\n${env.SITE}/?s=${id}\n\nWhen they join, a live panel appears here. Type any message to ask a custom question.`);
   }
   const { id } = await (await room('_').fetch('https://r/active')).json();
@@ -79,7 +94,7 @@ export class Room {
     if (!s) return new Response('not found', { status: 404 });
     const save = () => this.c.storage.put('s', s);
 
-    if (p === 'info') return Response.json({ name: s.name, pos: s.pos, company: s.company, done: !!s.done });
+    if (p === 'info') return Response.json({ name: s.name, pos: s.pos, company: s.company, address: s.address, rep: s.rep, logo: s.logo, done: !!s.done });
 
     if (p === 'cmd') {
       const c = await req.json();
