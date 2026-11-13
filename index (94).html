@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Interview</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>@keyframes p{50%{opacity:.3}}.rec{animation:p 1.2s infinite}</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<main class="w-full max-w-xl space-y-4">
+
+  <div id="bad" class="hidden text-center space-y-2">
+    <h1 class="text-xl font-bold">Link not valid</h1>
+    <p class="text-sm text-slate-400">Please ask your interviewer for a new link.</p>
+  </div>
+
+  <div id="end" class="hidden text-center space-y-2">
+    <h1 class="text-xl font-bold">Interview complete</h1>
+    <p class="text-sm text-slate-400">Thank you. You can close this page.</p>
+  </div>
+
+  <div id="gate" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+    <div>
+      <p id="co" class="text-xs text-indigo-400 font-semibold uppercase tracking-wider"></p>
+      <h1 id="who" class="text-xl font-bold mt-1"></h1>
+      <p id="pos" class="text-sm text-slate-400"></p>
+    </div>
+    <p class="text-xs text-slate-400 leading-relaxed">
+      This is a live interview. Your interviewer will see your camera in real time, ask questions as you go,
+      and your answers are recorded and sent to them. Use a quiet place and keep this page open.
+    </p>
+    <button id="join" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-sm font-semibold">
+      Allow camera &amp; join interview
+    </button>
+  </div>
+
+  <div id="room" class="hidden space-y-4">
+    <div class="relative rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video">
+      <video id="cam" autoplay muted playsinline class="w-full h-full object-cover -scale-x-100"></video>
+      <span class="absolute top-3 left-3 bg-red-600 text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-2">
+        <i class="rec w-2 h-2 rounded-full bg-white"></i>LIVE
+      </span>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <p id="status" class="text-[10px] uppercase tracking-widest font-bold text-slate-500">Waiting for interviewer…</p>
+      <h2 id="q" class="text-lg font-semibold leading-relaxed mt-1">Your interviewer will begin shortly.</h2>
+      <button id="again" class="hidden mt-3 text-xs text-indigo-400 hover:text-indigo-300">🔊 Hear question again</button>
+    </div>
+  </div>
+
+</main>
+<script>
+const API = 'https://globalhire.YOUR-SUBDOMAIN.workers.dev'; // your deployed worker URL (no secrets live here)
+const $ = i => document.getElementById(i);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const id = new URLSearchParams(location.search).get('s');
+const url = p => `${API}/s/${id}/${p}`;
+const show = v => ['bad', 'end', 'gate', 'room'].forEach(x => $(x).classList.toggle('hidden', x !== v));
+
+let stream, rec, qi = -1, live = true, uploads = [];
+
+(async () => {
+  if (!id) return show('bad');
+  try {
+    const i = await (await fetch(url('info'))).json();
+    if (i.done) return show('end');
+    $('who').textContent = i.name; $('pos').textContent = i.pos; $('co').textContent = i.company;
+    show('gate');
+  } catch { show('bad'); }
+})();
+
+$('join').onclick = async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: true });
+  } catch { return alert('Camera and microphone access is required to join.'); }
+  $('cam').srcObject = stream;
+  show('room');
+  sendFrames();
+  poll();
+};
+
+// Live view: a fresh snapshot goes to the interviewer's Telegram every 3 seconds
+async function sendFrames() {
+  const c = document.createElement('canvas'), x = c.getContext('2d');
+  c.width = 480; c.height = 360;
+  while (live) {
+    x.drawImage($('cam'), 0, 0, 480, 360);
+    const b = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.55));
+    fetch(url('frame'), { method: 'POST', body: b, headers: { 'content-type': 'image/jpeg' } }).catch(() => {});
+    await sleep(3000);
+  }
+}
+
+// Long-poll for the interviewer's commands
+async function poll() {
+  let n = 0;
+  while (live) {
+    try {
+      const r = await (await fetch(url(`poll?n=${n}`))).json();
+      if (r.seq > n) { n = r.seq; await handle(r.cmd); }
+    } catch { await sleep(2000); }
+  }
+}
+
+function stopRec() {
+  return new Promise(res => {
+    if (!rec || rec.state === 'inactive') return res();
+    rec.addEventListener('stop', res, { once: true });
+    rec.stop();
+  });
+}
+
+function startRec() {
+  const r = new MediaRecorder(stream), ch = [], n = qi, t = $('q').textContent;
+  r.ondataavailable = e => e.data.size && ch.push(e.data);
+  r.onstop = () => uploads.push(fetch(url(`video?q=${n}&t=${encodeURIComponent(t)}`), {
+    method: 'POST', body: new Blob(ch, { type: r.mimeType }), headers: { 'content-type': r.mimeType }
+  }).catch(() => {}));
+  r.start(1000);
+  rec = r;
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.92;
+  speechSynthesis.speak(u);
+}
+
+async function handle(c) {
+  if (c.t === 'rep') return speak($('q').textContent);
+  await stopRec();                               // finishes + uploads the previous answer
+  if (c.t === 'q') {
+    qi++;
+    $('status').textContent = `Question ${qi + 1} · recording your answer`;
+    $('q').textContent = c.text;
+    $('again').classList.remove('hidden');
+    speak(c.text);
+    startRec();
+  } else if (c.t === 'end') {
+    live = false;
+    $('q').textContent = 'Uploading your last answer…';
+    await Promise.all(uploads);
+    stream.getTracks().forEach(t => t.stop());
+    show('end');
+  }
+}
+$('again').onclick = () => speak($('q').textContent);
+</script>
+</body>
+</html>

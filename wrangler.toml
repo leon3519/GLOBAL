@@ -1,0 +1,15 @@
+name = "globalhire"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+SITE = "https://YOUR-SITE.pages.dev"   # where index.html is hosted
+OWNER_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
