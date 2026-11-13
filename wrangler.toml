@@ -3,8 +3,8 @@ main = "worker.js"
 compatibility_date = "2024-11-01"
 
 [vars]
-SITE = "https://YOUR-SITE.pages.dev"   # where index.html is hosted
-OWNER_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID"
+SITE = "https://interview-portal-omega.vercel.app"   # where index.html is hosted
+OWNER_CHAT_ID = "7141276034"
 
 [[durable_objects.bindings]]
 name = "ROOM"
